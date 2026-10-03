@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Week 16 — Small Board, Big Switch</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../lesson.css">
+</head>
+<body>
+  <header>
+    <p class="eyebrow">WEEK 16 · A TINY SIGNAL, A SEPARATE LOAD</p>
+    <h1>Small Board, Big Switch</h1>
+    <p>Use a button and a transistor-driven relay to turn a tiny battery-powered motor on and off.</p>
+    <p><a class="back" href="../">← All lessons</a></p>
+  </header>
+  <main class="lesson-page">
+    <section class="lesson-summary" aria-labelledby="goal-heading">
+      <div><h2 id="goal-heading">Your goal</h2><p>Use Arduino pin 12 as a button input and pin 9 as a relay-control output. Each deliberate press changes whether the relay connects a two-AA-battery motor circuit.</p></div>
+      <aside><strong>Time:</strong> 45–60 min<br><strong>Difficulty:</strong> careful multi-part build<br><strong>Keep it safe:</strong> this lesson is low-voltage only.</aside>
+    </section>
+
+    <section aria-labelledby="parts-heading">
+      <h2 id="parts-heading">Gather the parts</h2>
+      <ul class="parts"><li>Uno-compatible board and USB cable</li><li>Breadboard</li><li>5 V relay, NPN transistor, and diode from the matching Freenove kit</li><li>Small DC motor and a two-AA battery holder with two AA batteries</li><li>1 push button and 1 LED</li><li>Two 10 kΩ resistors, one 1 kΩ resistor, and one 220 Ω resistor</li><li>8 male-to-male jumper wires</li></ul>
+      <p><strong>Safety boundary:</strong> the referenced project uses the board’s 5 V control circuit and a separate <strong>two-AA-battery</strong> motor supply; never connect this project to AC mains, a wall outlet, house wiring, a power strip, or an unknown/high-voltage load. Do not use a relay as a first experiment with mains electricity. Remove USB and the AA batteries before moving wires; keep fingers, hair, and loose items away from the motor shaft; stop if anything becomes hot, smells odd, or behaves unexpectedly.</p>
+    </section>
+
+    <section class="steps" aria-labelledby="steps-heading">
+      <h2 id="steps-heading">Build it, one check at a time</h2>
+      <article class="step"><h3>Step 1 — Study the reference circuit</h3><p>Keep USB and the AA batteries disconnected. This is Freenove Project 10.1: a bare 5 V relay is driven through an NPN transistor, while the relay contacts switch a separate two-AA-battery motor path. It is not a three-pin relay module; follow this exact source page rather than substituting a similar-looking relay or module.</p><figure><img src="../assets/lesson-16/lesson-16-freenove-relay-circuit.png" alt="Freenove Chapter 10 Project 10.1 circuit schematic showing Arduino pin 12 at a push button, Arduino pin 9 through a 1 kilohm resistor to an NPN transistor, a 5 volt relay with diode and indicator LED, and a separate two-AA-battery motor circuit."><figcaption>Reference image: Freenove Ultimate Starter Kit, <em>Tutorial.pdf</em>, Chapter 10, Project 10.1, printed page 93 / PDF page 97. Rasterized <strong>unchanged</strong> from the permitted source pack under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC BY-NC-SA 3.0</a>; the public tutorial and licence source are linked in <a href="#source-heading">Reference pages</a>.</figcaption></figure><label><input type="checkbox" data-step="1"> I have both power sources disconnected and can see the source circuit.</label></article>
+
+      <article class="step"><h3>Step 2 — Make the button input</h3><p>Copy the left side of the source circuit exactly. Arduino pin 12 reaches the button node through <strong>R4, 10 kΩ</strong>. That node also connects through <strong>R3, 10 kΩ</strong> to 5 V, and the push button connects the node to GND when pressed. This makes the normal reading HIGH and a pressed reading LOW. Do not leave the input floating or replace the two resistors with a guess.</p><p>Use the source image to identify the button’s paired legs before inserting it. A button rotated by 90 degrees can connect the wrong pair of breadboard rows.</p><label><input type="checkbox" data-step="2"> I traced pin 12 through R4, with R3 to 5 V and the button to GND.</label></article>
+
+      <article class="step"><h3>Step 3 — Build the relay driver, not a direct pin connection</h3><p>Copy the center of the source circuit: <strong>Arduino pin 9 → R2, 1 kΩ → Q1 base</strong>; Q1’s emitter goes to GND. The relay coil is on the 5 V side of this transistor switch. The source also places D1 across the coil as a <strong>flyback diode</strong>, and LED1 with <strong>R1, 220 Ω</strong> as an indicator path. Keep the diode direction exactly as shown in the source diagram.</p><p>Never put the relay coil directly on pin 9. The transistor and diode are required parts of this particular circuit. If your relay pin layout or diode marking differs from the source image, stop and consult that exact part’s documentation before powering it.</p><label><input type="checkbox" data-step="3"> I checked pin 9, the 1 kΩ base resistor, NPN transistor, relay coil, diode direction, LED, and 220 Ω resistor against the reference.</label></article>
+
+      <article class="step"><h3>Step 4 — Keep the motor circuit separate and low voltage</h3><p>With the AA holder still empty, copy the right side of the source diagram: the relay contacts complete the loop between the two-AA-battery holder and the small DC motor. The motor supply is separate from the Arduino USB supply. Put in only two AA cells, with their polarity matching the battery-holder markings and the source diagram.</p><p>Do not connect the battery holder, motor, or relay contacts to any AC wiring. Do not touch or restrain the spinning shaft. If the motor does not match the small low-voltage kit motor, do not assume its voltage or current rating: use a matching low-voltage part only.</p><label><input type="checkbox" data-step="4"> I matched the separate two-AA-battery motor loop to the source and kept all mains wiring out of this project.</label></article>
+
+      <article class="step"><h3>Step 5 — Upload the press-to-toggle sketch</h3><p>Reconnect USB, select your Uno-compatible board and port, and upload this original sketch. It retains the source-validated pin assignments and 10 ms stable-time check. It changes <code>relayState</code> only on a stable LOW press, so holding the button should not keep flipping the relay. The relay begins off.</p><pre><code>const byte relayPin = 9;
+const byte buttonPin = 12;
+
+bool buttonState = HIGH;
+bool relayState = LOW;
+bool lastButtonState = HIGH;
+unsigned long lastChangeTime = 0;
+
+void setup() {
+  pinMode(buttonPin, INPUT);
+  pinMode(relayPin, OUTPUT);
+  digitalWrite(relayPin, relayState);
+}
+
+void loop() {
+  bool nowButtonState = digitalRead(buttonPin);
+
+  if (nowButtonState != lastButtonState) {
+    lastChangeTime = millis();
+  }
+
+  if (millis() - lastChangeTime &gt; 10 && nowButtonState != buttonState) {
+    buttonState = nowButtonState;
+    if (buttonState == LOW) {
+      relayState = !relayState;
+      digitalWrite(relayPin, relayState);
+    }
+  }
+
+  lastButtonState = nowButtonState;
+}</code></pre><p><strong>What you should see:</strong> one press changes the relay state; the indicator and small motor change state with it. A click alone is not a reason to touch the circuit. If it does not work, disconnect USB and remove the AA batteries first, then compare every component, diode direction, relay terminal, and button leg against the source diagram. Do not troubleshoot by trying AC power.</p><label><input type="checkbox" data-step="5"> I uploaded the sketch and observed the low-voltage result, or safely compared my unpowered build with the reference.</label></article>
+    </section>
+
+    <section class="challenge" aria-labelledby="challenge-heading"><h2 id="challenge-heading">Tiny challenge</h2><p>Before changing code, predict what happens if you change <code>&gt; 10</code> to <code>&gt; 30</code>. Test it only with the same low-voltage circuit. Does a longer stable-time check make a very quick press easier or harder to detect? Put the value back to 10 when you finish.</p></section>
+    <section class="lesson-complete" aria-live="polite"><h2>Progress</h2><p id="progress-text">0 of 5 checks complete.</p><progress id="progress" value="0" max="5">0%</progress><button id="reset-progress" type="button">Reset this lesson’s checks</button></section>
+    <section class="sources" aria-labelledby="source-heading"><h2 id="source-heading">Reference pages</h2><ul><li><a href="https://docs.freenove.com/projects/fnk0017/en/latest/fnk0017/codes/tutorial/10_Motor.html">Freenove Ultimate Starter Kit — Chapter 10, Project 10.1: component list, relay circuit, pin 12/pin 9 assignment, separate two-AA motor supply, and debounce sketch</a></li><li><a href="https://github.com/Freenove/Freenove_Ultimate_Starter_Kit/blob/master/readme.md">Freenove Ultimate Starter Kit — upstream repository and CC BY-NC-SA 3.0 licence declaration</a></li><li><a href="https://docs.arduino.cc/language-reference/en/functions/digital-io/digitalread/">Arduino documentation — digitalRead(): reads HIGH or LOW from a digital pin</a></li><li><a href="https://docs.arduino.cc/language-reference/en/functions/digital-io/digitalwrite/">Arduino documentation — digitalWrite(): writes HIGH or LOW to an output pin</a></li></ul><p>The unchanged reference image and upstream material are from Freenove’s Ultimate Starter Kit and are used under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC BY-NC-SA 3.0</a>. Attribution, noncommercial, and ShareAlike requirements apply. The learner-facing instructions and adapted, clearly named sketch are original.</p></section>
+  </main>
+  <script src="../lesson.js"></script>
+</body>
+</html>
