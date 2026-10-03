@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Week 06 — Mix Your Own Colours</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../lesson.css">
+</head>
+<body>
+  <header>
+    <p class="eyebrow">WEEK 06 · PWM COLOUR MIXING</p>
+    <h1>Mix Your Own Colours</h1>
+    <p>Use three knobs and PWM to blend red, green, and blue light in one RGB LED. This is a low-voltage, USB-powered experiment only.</p>
+    <p><a class="back" href="../">← All lessons</a></p>
+  </header>
+  <main class="lesson-page">
+    <section class="lesson-summary" aria-labelledby="goal-heading">
+      <div><h2 id="goal-heading">Your goal</h2><p>Wire the Freenove kit’s common-anode RGB LED, read three potentiometers on A0–A2, and use PWM pins 11, 10, and 9 to mix a colour you choose.</p></div>
+      <aside><strong>Time:</strong> 35–45 min<br><strong>Difficulty:</strong> beginner multi-input build<br><strong>Keep it safe:</strong> unplug USB before changing wires.</aside>
+    </section>
+
+    <section aria-labelledby="parts-heading">
+      <h2 id="parts-heading">Gather the parts</h2>
+      <ul class="parts"><li>Uno-compatible board and USB cable</li><li>Breadboard</li><li>1 common-anode RGB LED from the Freenove kit</li><li>3 rotary potentiometers</li><li>3 resistors marked 220 Ω</li><li>15 male-to-male jumper wires</li></ul>
+      <p><strong>Important:</strong> use only the board’s 5 V, GND, A0–A2, and pins 9–11 connections shown here. This project is for the USB-powered board only: never connect the breadboard to wall power, a battery pack, or a higher-voltage circuit.</p>
+    </section>
+
+    <section class="steps" aria-labelledby="steps-heading">
+      <h2 id="steps-heading">Build it, one check at a time</h2>
+      <article class="step"><h3>Step 1 — Read the source circuit</h3><p>Keep USB unplugged. This unchanged reference page from the permitted Freenove tutorial shows the circuit and breadboard layout. It uses three 10 kΩ potentiometers: their outer legs go to 5 V and GND, and their centre (wiper) legs go to A0, A1, and A2. The RGB LED has one 220 Ω current-limiting resistor in each colour path.</p><figure><img src="../assets/lesson-06/lesson-06-rgb-circuit.jpg" alt="Freenove reference page showing an RGB LED with a common connection to 5 volts, 220 ohm resistors to Arduino pins 11, 10, and 9, and three 10 kilo-ohm potentiometers connected to A0, A1, and A2."><figcaption>Reference image: Freenove Ultimate Starter Kit, <em>Tutorial.pdf</em>, Chapter 8, Project 8.1, PDF page 80 / printed page 76. Rasterized unchanged from the permitted source pack under CC BY-NC-SA 3.0.</figcaption></figure><label><input type="checkbox" data-step="1"> I have USB unplugged and can see the source circuit.</label></article>
+      <article class="step"><h3>Step 2 — Identify the LED before wiring it</h3><p>An RGB LED has four legs. This Freenove circuit is for a <strong>common-anode</strong> part: its longest common leg connects to <strong>5 V</strong>. The remaining three legs are the red, green, and blue channels. Put all four legs in separate breadboard rows.</p><p><strong>Stop if your part is different.</strong> Some RGB LEDs are common-cathode, which need a different circuit and code logic. Do not use this lesson’s 5 V common connection for a common-cathode LED. Use the diagram and your component’s documentation to identify each colour leg; never assume the colours are in the same order on every RGB LED.</p><label><input type="checkbox" data-step="2"> I confirmed that my LED is the kit’s common-anode type and its legs are separate.</label></article>
+      <article class="step"><h3>Step 3 — Wire the three colour channels</h3><p>Connect the RGB LED’s <strong>long common leg to 5 V</strong>. For each remaining colour leg, add its own <strong>220 Ω resistor</strong> in series before the Arduino pin. Follow the reference layout exactly: <strong>pin 11 → 220 Ω → red channel</strong>, <strong>pin 10 → 220 Ω → green channel</strong>, and <strong>pin 9 → 220 Ω → blue channel</strong>. The resistors limit current, so do not omit or share them.</p><p>Trace each route slowly. No colour leg should connect straight to an Arduino pin, and none of the four RGB LED legs should share a breadboard row.</p><label><input type="checkbox" data-step="3"> I checked 5 V on the common leg and three separate 220 Ω colour paths from pins 11, 10, and 9.</label></article>
+      <article class="step"><h3>Step 4 — Add the three control knobs</h3><p>For each potentiometer, connect one outside leg to 5 V, the other outside leg to GND, and its middle leg to the Arduino input. Connect the inputs in order: first knob to <strong>A0</strong>, second to <strong>A1</strong>, and third to <strong>A2</strong>. Turning a knob changes the voltage on its middle leg. If a knob turns the opposite direction from your expectation, that is okay: its two outside wires may be swapped while USB is unplugged.</p><label><input type="checkbox" data-step="4"> Each knob has 5 V and GND on its outside legs, with its middle leg on A0, A1, or A2.</label></article>
+      <article class="step"><h3>Step 5 — Upload the colour mixer</h3><p>Reconnect USB, select your Uno-compatible board and serial port in Arduino IDE, then upload this original sketch.</p><pre><code>const int redPin = 11;
+const int greenPin = 10;
+const int bluePin = 9;
+
+void setup() {
+  pinMode(redPin, OUTPUT);
+  pinMode(greenPin, OUTPUT);
+  pinMode(bluePin, OUTPUT);
+}
+
+void loop() {
+  int red = map(analogRead(A0), 0, 1023, 0, 255);
+  int green = map(analogRead(A1), 0, 1023, 0, 255);
+  int blue = map(analogRead(A2), 0, 1023, 0, 255);
+
+  analogWrite(redPin, 255 - red);
+  analogWrite(greenPin, 255 - green);
+  analogWrite(bluePin, 255 - blue);
+  delay(20);
+}</code></pre><p><strong>What the code means:</strong> each <code>analogRead</code> changes a knob voltage into 0–1023, then <code>map</code> makes a PWM-sized number from 0–255. The subtract-from-255 step is deliberate: this common-anode LED shines when a colour pin is low, so it reverses normal PWM intuition. Turn one knob at a time, then combine two or three. You can try red + green for yellow, red + blue for magenta, and all three for a pale white.</p><p>If nothing lights, unplug USB and recheck the long common leg is on 5 V, every colour path has its own 220 Ω resistor, and the pins are 11, 10, and 9. If a colour is unexpected, confirm that channel’s leg against the source layout before changing code.</p><label><input type="checkbox" data-step="5"> The sketch uploaded, and I used the knobs to change the LED colour.</label></article>
+    </section>
+
+    <section class="challenge" aria-labelledby="challenge-heading"><h2 id="challenge-heading">Tiny challenge</h2><p>Pick one target colour before turning the knobs. Which channels need light for turquoise? Can you make it, then make it less bright by turning all three knobs down a little? Describe why a common-anode LED needs the reversed PWM numbers in this sketch.</p></section>
+    <section class="lesson-complete" aria-live="polite"><h2>Progress</h2><p id="progress-text">0 of 5 checks complete.</p><progress id="progress" value="0" max="5">0%</progress><button id="reset-progress" type="button">Reset this lesson’s checks</button></section>
+    <section class="sources" aria-labelledby="source-heading"><h2 id="source-heading">Reference pages</h2><ul><li><a href="https://docs.freenove.com/projects/fnk0017/en/latest/fnk0017/codes/tutorial/8_RGB.html">Freenove Ultimate Starter Kit — Chapter 8: RGB LED, Project 8.1 circuit and sketch</a></li><li><a href="https://docs.freenove.com/projects/fnk0017/en/latest/index.html">Freenove Ultimate Starter Kit online tutorial index</a></li></ul><p>The unchanged reference image and upstream material are from Freenove’s Ultimate Starter Kit and are used under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC BY-NC-SA 3.0</a>. Attribution, noncommercial, and ShareAlike requirements apply.</p></section>
+  </main>
+  <script src="../lesson.js"></script>
+</body>
+</html>

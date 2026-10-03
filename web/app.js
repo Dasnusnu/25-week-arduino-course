@@ -28,6 +28,7 @@ function render() {
       3: '03-the-melody-machine.html',
       4: '04-the-control-knob.html',
       5: '05-the-darkness-detector.html',
+      6: '06-mix-your-own-colours.html',
     };
     if (lessonPages[lesson.week]) {
       const link = node.querySelector('.open-lesson');
