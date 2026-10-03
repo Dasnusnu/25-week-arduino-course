@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Week 11 — Words on a Real Screen</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../lesson.css">
+</head>
+<body>
+  <header>
+    <p class="eyebrow">WEEK 11 · FOUR WIRES, TWO LINES</p>
+    <h1>Words on a Real Screen</h1>
+    <p>Give your Arduino a tiny 16-character-by-2-line screen and make it say hello.</p>
+    <p><a class="back" href="../">← All lessons</a></p>
+  </header>
+  <main class="lesson-page">
+    <section class="lesson-summary" aria-labelledby="goal-heading">
+      <div><h2 id="goal-heading">Your goal</h2><p>Wire an I2C LCD1602 display, print a greeting, and show a seconds counter on its second row.</p></div>
+      <aside><strong>Time:</strong> 35–45 min<br><strong>Difficulty:</strong> careful wire matching<br><strong>Keep it safe:</strong> unplug USB before changing wires.</aside>
+    </section>
+
+    <section aria-labelledby="parts-heading">
+      <h2 id="parts-heading">Gather the parts</h2>
+      <ul class="parts"><li>Uno-compatible board and USB cable</li><li>I2C LCD1602 module (the kind with a four-pin I2C backpack)</li><li>4 male-to-male jumper wires</li><li>Breadboard, only if it helps hold the display safely</li></ul>
+      <p><strong>Before you start:</strong> this lesson is for an <strong>I2C LCD1602</strong>, not a bare 16-pin LCD. Look for four display pins, usually labeled <strong>GND, VCC, SDA, SCL</strong>. Use USB power only. Keep the board on a dry, non-metal table; unplug USB before moving a wire; and never force a connector or connect the display to mains power.</p>
+    </section>
+
+    <section class="steps" aria-labelledby="steps-heading">
+      <h2 id="steps-heading">Build it, one check at a time</h2>
+      <article class="step"><h3>Step 1 — Read the tiny screen</h3><p>LCD1602 means this display has <strong>16 character spaces across and 2 rows</strong>. The I2C backpack turns the many LCD connections into four useful pins. Power uses VCC and GND; I2C messages use SDA (data) and SCL (clock). Do not confuse SDA and SCL with ordinary numbered digital pins.</p><figure><img src="../assets/lesson-11/lesson-11-freenove-i2c-lcd1602-circuit.png" alt="Freenove reference circuit image showing an I2C LCD1602 connected to an Uno-compatible board using 5V, GND, SDA, and SCL."><figcaption>Reference circuit image: Freenove, <em>Chapter 16, Project 16.1, I2C LCD1602 circuit connection</em>. Reused unchanged under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC BY-NC-SA 3.0</a>; source page linked in <a href="#source-heading">Reference pages</a>.</figcaption></figure><label><input type="checkbox" data-step="1"> I found the four pins on my I2C LCD1602 and can read their labels.</label></article>
+
+      <article class="step"><h3>Step 2 — Wire power first</h3><p>With USB unplugged, connect <strong>LCD VCC → Arduino 5V</strong> and <strong>LCD GND → Arduino GND</strong>. Match the printed labels, not a wire color. A reversed power connection can damage a module, so stop and correct any uncertain wire before plugging USB back in.</p><label><input type="checkbox" data-step="2"> My display VCC goes to 5V and GND goes to GND.</label></article>
+
+      <article class="step"><h3>Step 3 — Add the two I2C signal wires</h3><p>On a classic Uno-compatible board, connect <strong>LCD SDA → Arduino A4 (SDA)</strong> and <strong>LCD SCL → Arduino A5 (SCL)</strong>. Some Uno-style boards also provide duplicate SDA/SCL pins beside AREF; those are connected to the same I2C bus. Use only one matching pair. The four completed paths are VCC-to-5V, GND-to-GND, SDA-to-A4, and SCL-to-A5.</p><p><strong>Pause:</strong> the source diagram labels the controller’s I2C lines. If your board is not Uno-compatible, find its documented SDA and SCL pins instead of assuming A4 and A5.</p><label><input type="checkbox" data-step="3"> I traced all four paths and did not swap SDA with SCL.</label></article>
+
+      <article class="step"><h3>Step 4 — Add the LCD library</h3><p>The Freenove reference sketch uses <code>LiquidCrystal_I2C</code>. In Arduino IDE choose <strong>Sketch → Include Library → Add .ZIP Library…</strong> and select Freenove’s supplied <code>LiquidCrystal_I2C.zip</code>, or use the library supplied for your exact kit. Then reconnect USB and choose the board and port.</p><p>Many I2C LCD backpacks use address <code>0x27</code>; the Freenove example checks it and switches to <code>0x3F</code> when <code>0x27</code> does not answer. That is why the sketch below contains both addresses. Do not guess at random addresses when a display is blank—check power, contrast, wiring, and your module’s documentation first.</p><label><input type="checkbox" data-step="4"> I installed the LCD library and selected my board and port.</label></article>
+
+      <article class="step"><h3>Step 5 — Upload your first screen message</h3><p>Upload this original greeting-and-counter sketch, based on the source’s address check, 16×2 setup, backlight, cursor, and seconds-counter behavior. The cursor coordinates start at zero, so <code>lcd.setCursor(0, 1)</code> means the first character of the second row.</p><pre><code>#include &lt;Wire.h&gt;
+#include &lt;LiquidCrystal_I2C.h&gt;
+
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+bool i2cAddressResponds(uint8_t address) {
+  Wire.begin();
+  Wire.beginTransmission(address);
+  return Wire.endTransmission() == 0;
+}
+
+void setup() {
+  if (!i2cAddressResponds(0x27)) {
+    lcd = LiquidCrystal_I2C(0x3F, 16, 2);
+  }
+  lcd.init();
+  lcd.backlight();
+  lcd.print("HELLO, MAKER!");
+}
+
+void loop() {
+  lcd.setCursor(0, 1);
+  lcd.print("Seconds: ");
+  lcd.print(millis() / 1000);
+  lcd.print("   ");
+}</code></pre><p><strong>What success looks like:</strong> the backlight turns on, the first row says <strong>HELLO, MAKER!</strong>, and the second row counts upward. If the backlight is on but words are missing, gently turn the tiny contrast screw on the back of the I2C backpack a little at a time with USB unplugged. If nothing lights, unplug USB and recheck VCC/GND before trying again. A screen message is for learning, not for safety alerts or anything that must be read correctly in an emergency.</p><label><input type="checkbox" data-step="5"> My greeting and seconds counter appear, or I safely checked the wiring and contrast.</label></article>
+    </section>
+
+    <section class="challenge" aria-labelledby="challenge-heading"><h2 id="challenge-heading">Tiny challenge</h2><p>Change the greeting to a message of 16 characters or fewer. Then change the cursor to <code>lcd.setCursor(4, 1)</code>. Where does the counter begin? Explain why the second row has number <code>1</code>, not <code>2</code>.</p></section>
+    <section class="lesson-complete" aria-live="polite"><h2>Progress</h2><p id="progress-text">0 of 5 checks complete.</p><progress id="progress" value="0" max="5">0%</progress><button id="reset-progress" type="button">Reset this lesson’s checks</button></section>
+    <section class="sources" aria-labelledby="source-heading"><h2 id="source-heading">Reference pages</h2><ul><li><a href="https://docs.freenove.com/projects/fnk0017/en/latest/fnk0017/codes/tutorial/16_LCD1602.html">Freenove Ultimate Starter Kit — Chapter 16: I2C LCD1602 parts, circuit, address fallback, library, display behavior, and contrast guidance</a></li><li><a href="https://github.com/Freenove/Freenove_Ultimate_Starter_Kit/blob/master/readme.md">Freenove Ultimate Starter Kit upstream repository — CC BY-NC-SA 3.0 declaration</a></li><li><a href="https://docs.arduino.cc/learn/communication/wire/">Arduino documentation — Wire/I2C overview</a></li></ul><p>The local reference image is an unchanged Freenove Chapter 16 circuit image used under the upstream <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC BY-NC-SA 3.0</a> license with attribution. The learner-facing explanation and greeting code are original. Technical choices were checked against the retained Freenove source pack and the public Chapter 16 page.</p></section>
+  </main>
+  <script src="../lesson.js"></script>
+</body>
+</html>

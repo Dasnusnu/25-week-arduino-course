@@ -33,6 +33,7 @@ function render() {
       8: '08-the-counting-machine.html',
       9: '09-the-room-thermometer.html',
       10: '10-the-water-detector.html',
+      11: '11-words-on-a-real-screen.html',
     };
     if (lessonPages[lesson.week]) {
       const link = node.querySelector('.open-lesson');
