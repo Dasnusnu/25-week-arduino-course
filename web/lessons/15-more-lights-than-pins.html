@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Week 15 — More Lights Than Pins</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../lesson.css">
+</head>
+<body>
+  <header>
+    <p class="eyebrow">WEEK 15 · EIGHT OUTPUTS, THREE WIRES</p>
+    <h1>More Lights Than Pins</h1>
+    <p>Send one byte through a 74HC595 shift register and watch a light travel across an eight-LED bar graph.</p>
+    <p><a class="back" href="../">← All lessons</a></p>
+  </header>
+  <main class="lesson-page">
+    <section class="lesson-summary" aria-labelledby="goal-heading">
+      <div><h2 id="goal-heading">Your goal</h2><p>Use Arduino pins 11, 12, and 13 to control eight separately limited LEDs through a 74HC595, then move one lit segment across the bar graph.</p></div>
+      <aside><strong>Time:</strong> 40–50 min<br><strong>Difficulty:</strong> careful multi-wire build<br><strong>Keep it safe:</strong> unplug USB before changing wires.</aside>
+    </section>
+
+    <section aria-labelledby="parts-heading">
+      <h2 id="parts-heading">Gather the parts</h2>
+      <ul class="parts"><li>Uno-compatible board and USB cable</li><li>Breadboard</li><li>1 74HC595 shift-register IC</li><li>1 eight-segment LED bar graph</li><li>8 resistors marked 220 Ω</li><li>17 male-to-male jumper wires</li></ul>
+      <p><strong>Before you start:</strong> this is a low-voltage, USB-powered experiment. Work on a dry, non-metal surface and disconnect USB before moving any wire. Follow the pictured Freenove-style LED-bar-graph pin map exactly: similar-looking bar graphs can have a different leg order. Never use wall power, a higher-voltage supply, or an LED segment without its own resistor.</p>
+    </section>
+
+    <section class="steps" aria-labelledby="steps-heading">
+      <h2 id="steps-heading">Build it, one check at a time</h2>
+      <article class="step"><h3>Step 1 — Read the reference circuit before wiring</h3><p>Keep USB unplugged. Project 15.1 uses a 74HC595 to turn three Arduino control wires into eight output choices for an LED bar graph. The chip does not create extra power: it receives a serial pattern, then presents that pattern on its eight outputs. Use the full, unchanged reference page below to match breadboard rows and the bar graph’s physical leg numbers.</p><figure><img src="../assets/lesson-15/lesson-15-freenove-74hc595-circuit.png" alt="Freenove Project 15.1 reference page showing a 74HC595 connected to Arduino pins 11, 12, and 13 and eight 220 ohm resistors leading to an LED bar graph, with its breadboard layout."><figcaption>Reference image: Freenove Ultimate Starter Kit, <em>Tutorial.pdf</em>, Chapter 15, Project 15.1, printed page 128 / PDF page 132. Rasterized <strong>unchanged</strong> from the permitted source pack under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC BY-NC-SA 3.0</a>; the public tutorial and licence source are linked in <a href="#source-heading">Reference pages</a>.</figcaption></figure><label><input type="checkbox" data-step="1"> I have USB unplugged and can see the source circuit and hardware layout.</label></article>
+
+      <article class="step"><h3>Step 2 — Give the shift register its safe power paths</h3><p>Place the 74HC595 across the breadboard centre gap with its notch oriented like the reference. Connect <strong>pin 16 (VCC)</strong> and <strong>pin 10 (MR)</strong> to <strong>5 V</strong>. Connect <strong>pin 8 (GND)</strong> and <strong>pin 13 (OE)</strong> to <strong>GND</strong>. MR is an active-low reset, so 5 V keeps the shift register from being cleared; OE is active-high, so GND enables the outputs.</p><p>Count IC pins from the notch or dot, not from the print direction. Pause and compare every power wire with the reference image before reconnecting USB.</p><label><input type="checkbox" data-step="2"> I checked pins 16 and 10 to 5 V, plus pins 8 and 13 to GND.</label></article>
+
+      <article class="step"><h3>Step 3 — Add the three control wires</h3><p>Connect <strong>Arduino pin 11 → 74HC595 pin 14 (DS)</strong>. Connect <strong>Arduino pin 13 → 74HC595 pin 11 (SH_CP)</strong>. Connect <strong>Arduino pin 12 → 74HC595 pin 12 (ST_CP)</strong>. DS carries the next bit, SH_CP clocks it into the chip, and ST_CP latches the completed eight-bit pattern onto the outputs together.</p><p>Keep these signal wires separate from the 5 V and GND rails. The pin numbers are the most dependable cross-check if abbreviations are hard to read.</p><label><input type="checkbox" data-step="3"> I traced Arduino 11, 13, and 12 to DS 14, SH_CP 11, and ST_CP 12.</label></article>
+
+      <article class="step"><h3>Step 4 — Build eight protected light paths</h3><p>Set the eight-segment LED bar graph into the breadboard exactly as shown. Follow the reference image for every bar-graph leg: its common connections go to GND, while 74HC595 outputs Q0–Q7 each reach their matching LED path through <strong>one 220 Ω resistor</strong>. The resistor belongs in series with that one LED path, not across the power rails.</p><p>Do not infer a bar graph’s internal connections from its shape. If one segment is backwards, unlit, or your part lacks the source’s pin map, unplug USB and verify its datasheet before changing connections. Do not share one resistor among multiple LEDs and do not rearrange bar-graph legs while powered.</p><label><input type="checkbox" data-step="4"> I matched all eight bar-graph legs to the reference and found eight separate 220 Ω resistor paths.</label></article>
+
+      <article class="step"><h3>Step 5 — Upload the travelling-light sketch</h3><p>Reconnect USB, choose your Uno-compatible board and port in Arduino IDE, and upload this original sketch. It uses the source-validated pins and the same least-significant-bit-first order. A byte named <code>pattern</code> begins as <code>0x01</code>; each left shift moves its single <code>1</code> bit to the next output. The latch changes the visible outputs only after all eight bits are sent.</p><pre><code>const byte latchPin = 12;
+const byte clockPin = 13;
+const byte dataPin = 11;
+
+void showPattern(byte pattern) {
+  digitalWrite(latchPin, LOW);
+  shiftOut(dataPin, clockPin, LSBFIRST, pattern);
+  digitalWrite(latchPin, HIGH);
+}
+
+void setup() {
+  pinMode(latchPin, OUTPUT);
+  pinMode(clockPin, OUTPUT);
+  pinMode(dataPin, OUTPUT);
+}
+
+void loop() {
+  byte pattern = 0x01;
+
+  for (byte step = 0; step &lt; 8; step++) {
+    showPattern(pattern);
+    delay(100);
+    pattern &lt;&lt;= 1;
+  }
+}</code></pre><p><strong>What you should see:</strong> one segment lights at a time and steps across all eight segments, then starts again. If every segment stays dark, unplug USB and first recheck 5 V/GND, OE at GND, MR at 5 V, and the three control wires. If the travel order is unexpected, compare every output, resistor, and bar-graph leg to the pictured map instead of swapping wires while powered.</p><label><input type="checkbox" data-step="5"> I uploaded the sketch and saw one light travel across the eight segments, or safely checked the circuit against the reference.</label></article>
+    </section>
+
+    <section class="challenge" aria-labelledby="challenge-heading"><h2 id="challenge-heading">Tiny challenge</h2><p>Change <code>delay(100)</code> to <code>delay(300)</code> and predict the visible change. Then replace <code>0x01</code> with <code>0x81</code>. Which two positions do you predict will light? Restore the original value before trying another experiment.</p></section>
+    <section class="lesson-complete" aria-live="polite"><h2>Progress</h2><p id="progress-text">0 of 5 checks complete.</p><progress id="progress" value="0" max="5">0%</progress><button id="reset-progress" type="button">Reset this lesson’s checks</button></section>
+    <section class="sources" aria-labelledby="source-heading"><h2 id="source-heading">Reference pages</h2><ul><li><a href="https://docs.freenove.com/projects/fnk0017/en/latest/fnk0017/codes/tutorial/15_LED_Matrix.html">Freenove Ultimate Starter Kit — Chapter 15: Project 15.1 component list, 74HC595 pin roles, LED-bar-graph circuit, and sketch</a></li><li><a href="https://github.com/Freenove/Freenove_Ultimate_Starter_Kit/blob/master/readme.md">Freenove Ultimate Starter Kit — upstream repository and CC BY-NC-SA 3.0 licence declaration</a></li><li><a href="https://docs.arduino.cc/language-reference/en/functions/advanced-io/shiftOut/">Arduino documentation — shiftOut(): byte, data pin, clock pin, and bit-order behavior</a></li></ul><p>The unchanged reference image and upstream material are from Freenove’s Ultimate Starter Kit and are used under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC BY-NC-SA 3.0</a>. Attribution, noncommercial, and ShareAlike requirements apply. The learner-facing instructions and small helper-function sketch are original.</p></section>
+  </main>
+  <script src="../lesson.js"></script>
+</body>
+</html>

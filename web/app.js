@@ -37,6 +37,7 @@ function render() {
       12: '12-the-secret-password-pad.html',
       13: '13-the-game-style-joystick.html',
       14: '14-the-clap-trigger.html',
+      15: '15-more-lights-than-pins.html',
     };
     if (lessonPages[lesson.week]) {
       const link = node.querySelector('.open-lesson');
