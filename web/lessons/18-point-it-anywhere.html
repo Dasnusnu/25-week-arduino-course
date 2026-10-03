@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Week 18 — Point It Anywhere</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../lesson.css">
+</head>
+<body>
+  <header>
+    <p class="eyebrow">WEEK 18 · TURN A KNOB, CHOOSE AN ANGLE</p>
+    <h1>Point It Anywhere</h1>
+    <p>Turn a potentiometer and use its reading to point a small hobby servo to a matching angle.</p>
+    <p><a class="back" href="../">← All lessons</a></p>
+  </header>
+  <main class="lesson-page">
+    <section class="lesson-summary" aria-labelledby="goal-heading">
+      <div><h2 id="goal-heading">Your goal</h2><p>Read a rotary potentiometer on Arduino A0, map its 0–1023 reading to 0–180, and send that angle to a matching standard-position servo on pin 3.</p></div>
+      <aside><strong>Time:</strong> 30–45 min<br><strong>Difficulty:</strong> careful connections<br><strong>Keep it safe:</strong> one small, unloaded kit servo only.</aside>
+    </section>
+
+    <section aria-labelledby="parts-heading">
+      <h2 id="parts-heading">Gather the parts</h2>
+      <ul class="parts"><li>Uno-compatible control board and USB cable</li><li>Breadboard</li><li>Rotary potentiometer</li><li>Matching small standard-position hobby servo</li><li>6 male-to-male jumper wires</li></ul>
+      <p><strong>Safety boundary:</strong> unplug USB before changing wires. Keep the servo horn clear of fingers, hair, sleeves, and objects. Do not force, block, or add a load to the horn. The Freenove source circuit is for its matching small kit servo; lead colours and plug order can differ on another servo, so use that servo’s documentation instead of guessing. Stop and unplug if it gets hot, smells unusual, jitters hard, resets the board, or behaves unexpectedly. Never use wall power, mains wiring, a higher-voltage supply, or an unknown power source.</p>
+    </section>
+
+    <section class="steps" aria-labelledby="steps-heading">
+      <h2 id="steps-heading">Build it, one check at a time</h2>
+      <article class="step"><h3>Step 1 — Know what will move</h3><p>A standard-position hobby servo contains a small motor, gears, a position sensor, and a control board. It is different from a continuously spinning DC motor: a changing control signal asks it to move its horn to a position. The matching Freenove servo uses <strong>orange for signal</strong>, <strong>red for VCC</strong>, and <strong>brown for GND</strong>. Check labels and your own component before power is connected.</p><figure><img src="../assets/lesson-18/lesson-18-freenove-servo-pot-circuit.png" alt="Freenove Chapter 11 circuit page showing a potentiometer between 5 volts and ground with its centre connection to Arduino A0, and a three-wire servo with signal to pin 3, VCC to 5 volts, and ground to ground."><figcaption>Reference image: Freenove Ultimate Starter Kit, <em>Tutorial.pdf</em>, Chapter 11, Project 11.2, printed page 108 / PDF page 112. Rasterized <strong>unchanged</strong> from the permitted source pack under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC BY-NC-SA 3.0</a>; the public tutorial and licence source are linked in <a href="#source-heading">Reference pages</a>.</figcaption></figure><label><input type="checkbox" data-step="1"> USB is unplugged, the horn has a clear path, and I am using only a matching small servo.</label></article>
+
+      <article class="step"><h3>Step 2 — Make the knob a voltage divider</h3><p>Place the potentiometer so its three terminals are in separate breadboard rows. Connect one outside terminal to <strong>5 V</strong>, the other outside terminal to <strong>GND</strong>, and the centre terminal (the wiper) to <strong>Arduino A0 → potentiometer middle pin</strong>. The source diagram shows 5 V at one outer terminal, GND at the other, and A0 at the centre. Swapping only the two outer terminals reverses which turning direction means a larger reading; it does not change the safe voltage range.</p><p>Do not leave A0 floating. A disconnected analog input can jump around instead of reporting a useful knob position.</p><label><input type="checkbox" data-step="2"> I traced 5 V and GND to the two outside potentiometer terminals and A0 to its centre terminal.</label></article>
+
+      <article class="step"><h3>Step 3 — Connect the servo exactly</h3><p>Follow the source’s matching-servo colour code and circuit: <strong>Arduino pin 3 → servo signal</strong> (orange in the source), <strong>5 V → servo VCC</strong> (red), and <strong>GND → servo GND</strong> (brown). The ground connection is needed so the servo and board share the same electrical reference. Check the signal/VCC/GND labels twice—reversed power connections can damage a servo.</p><p><strong>Power and load limit:</strong> the pictured Freenove circuit is a one-small-servo kit experiment, not a power design for a mechanism. A servo’s current rises while moving, especially if it is blocked or lifting weight. Arduino’s servo guidance warns that this kind of demand is not safe to draw from an Arduino board for heavier loads or additional servos. For any different, loaded, larger, or multiple-servo project, stop here and use the exact servo specifications plus a correctly rated external low-voltage supply; its ground must be connected to Arduino GND. Do not improvise that power setup from this lesson.</p><label><input type="checkbox" data-step="3"> I matched signal, VCC, and GND to the source circuit and will keep the horn unloaded.</label></article>
+
+      <article class="step"><h3>Step 4 — Translate a knob position into an angle</h3><p>On an Uno, <code>analogRead(A0)</code> gives a 10-bit value from 0 to 1023. <code>map(..., 0, 1023, 0, 180)</code> rescales that reading to an angle request. The Servo library then produces the timing signal; you do not need to make that timing pulse yourself. For the matching source servo, the tutorial describes a roughly 0–180° motion range and a 50 Hz control signal. Other servos can have different travel, so never force the horn past its own stop.</p><label><input type="checkbox" data-step="4"> I can explain that A0 reads the knob and mapping changes that reading into a requested angle.</label></article>
+
+      <article class="step"><h3>Step 5 — Upload the pointing sketch</h3><p>Reconnect USB, select your Uno-compatible board and port, then upload this original presentation of the source-validated A0/pin-3 mapping. Turn the potentiometer slowly. The horn should follow; it may not line up exactly with a printed degree marking because real servos and horns have mechanical tolerances. If it strains, chatters, hits an obstruction, becomes hot, or resets the board, unplug USB before inspecting the unplugged wiring and horn clearance.</p><pre><code>#include &lt;Servo.h&gt;
+
+Servo pointerServo;
+const byte servoPin = 3;
+const byte potPin = A0;
+
+void setup() {
+  pointerServo.attach(servoPin);
+}
+
+void loop() {
+  int rawReading = analogRead(potPin);
+  int angle = map(rawReading, 0, 1023, 0, 180);
+  pointerServo.write(angle);
+  delay(15);
+}</code></pre><p><strong>What you should see:</strong> turning the knob changes the requested servo angle. Turning it the other way changes the request the other way. If your direction feels backwards, swap the two <em>outside</em> potentiometer wires only while USB is unplugged; leave A0 on the centre terminal and leave the servo wiring unchanged.</p><label><input type="checkbox" data-step="5"> I uploaded the sketch and observed the low-voltage result, or safely compared my unplugged build with the reference.</label></article>
+    </section>
+
+    <section class="challenge" aria-labelledby="challenge-heading"><h2 id="challenge-heading">Tiny challenge</h2><p>Before changing the sketch, predict the result of mapping the knob to 30–150 instead of 0–180. With the same unloaded matching servo, try <code>map(rawReading, 0, 1023, 30, 150)</code>. Does the horn now avoid the ends of its travel? Put the source-validated range back when you finish.</p></section>
+    <section class="lesson-complete" aria-live="polite"><h2>Progress</h2><p id="progress-text">0 of 5 checks complete.</p><progress id="progress" value="0" max="5">0%</progress><button id="reset-progress" type="button">Reset this lesson’s checks</button></section>
+    <section class="sources" aria-labelledby="source-heading"><h2 id="source-heading">Reference pages</h2><ul><li><a href="https://docs.freenove.com/projects/fnk0017/en/latest/fnk0017/codes/tutorial/11_Servo.html">Freenove Ultimate Starter Kit — Chapter 11, Project 11.2: potentiometer/servo component list, A0 and pin-3 circuit, servo lead colours, and source sketch</a></li><li><a href="https://github.com/Freenove/Freenove_Ultimate_Starter_Kit/blob/master/readme.md">Freenove Ultimate Starter Kit — upstream repository and CC BY-NC-SA 3.0 licence declaration</a></li><li><a href="https://docs.arduino.cc/libraries/servo/">Arduino Servo library documentation — servo types, three-wire circuit, and multi-servo power guidance</a></li><li><a href="https://www.arduino.cc/en/Tutorial/Knob">Arduino Servo Motor Basics — potentiometer control example and servo power/load guidance</a></li><li><a href="https://docs.arduino.cc/language-reference/en/functions/analog-io/analogRead/">Arduino documentation — analogRead() and Uno’s 0–1023 10-bit result</a></li></ul><p>The unchanged reference image and upstream material are from Freenove’s Ultimate Starter Kit and are used under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC BY-NC-SA 3.0</a>. Attribution, noncommercial, and ShareAlike requirements apply. The learner-facing instructions and clearly named sketch are original.</p></section>
+  </main>
+  <script src="../lesson.js"></script>
+</body>
+</html>
