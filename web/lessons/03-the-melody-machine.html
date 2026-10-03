@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Week 03 — The Melody Machine</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../lesson.css">
+</head>
+<body>
+  <header>
+    <p class="eyebrow">WEEK 03 · BUILD, LISTEN, EXPLAIN</p>
+    <h1>The Melody Machine</h1>
+    <p>Turn a changing number into a changing pitch with a passive buzzer. This is a low-voltage, USB-powered experiment only.</p>
+    <p><a class="back" href="../">← All lessons</a></p>
+  </header>
+  <main class="lesson-page">
+    <section class="lesson-summary" aria-labelledby="goal-heading">
+      <div>
+        <h2 id="goal-heading">Your goal</h2>
+        <p>Use pin 9 to send many pitches to a passive buzzer through the kit’s NPN transistor circuit. The pitch will glide from about 1500 Hz to 2500 Hz and back again, making a rising-and-falling warning sound.</p>
+      </div>
+      <aside><strong>Time:</strong> 30–40 min<br><strong>Difficulty:</strong> beginner build<br><strong>Keep it safe:</strong> unplug USB before changing wires.</aside>
+    </section>
+
+    <section aria-labelledby="parts-heading">
+      <h2 id="parts-heading">Gather the parts</h2>
+      <ul class="parts"><li>Uno-compatible board and USB cable</li><li>Breadboard</li><li>1 passive buzzer</li><li>1 NPN transistor (the kit’s 8050)</li><li>1 × 1 kΩ resistor</li><li>4 jumper wires</li></ul>
+      <p><strong>Important:</strong> use a <strong>passive</strong> buzzer. Unlike an active buzzer, it does not choose a pitch by itself; the changing signal from the Arduino chooses the pitch. If you are unsure which one you have, stop and compare it with the source image before wiring.</p>
+    </section>
+
+    <section class="steps" aria-labelledby="steps-heading">
+      <h2 id="steps-heading">Build it, one check at a time</h2>
+      <article class="step"><h3>Step 1 — Study the reference circuit</h3><p>Keep USB unplugged. This unchanged page from the permitted Freenove tutorial shows the schematic and breadboard layout for Project 9.2. It is your map for the exact rows, transistor orientation, and buzzer polarity.</p><figure><img src="../assets/lesson-03/lesson-03-passive-buzzer-circuit.jpg" alt="Freenove reference page showing the schematic and breadboard layout for a passive buzzer driven through an NPN transistor from Arduino pin 9, plus a sine-wave frequency graph."><figcaption>Reference image: Freenove Ultimate Starter Kit, <em>Tutorial.pdf</em>, Chapter 9, Project 9.2, PDF page 92 / printed page 88. Rasterized unchanged from the permitted source pack under CC BY-NC-SA 3.0.</figcaption></figure><label><input type="checkbox" data-step="1"> I have USB unplugged and can see the source circuit.</label></article>
+      <article class="step"><h3>Step 2 — Build the transistor switch</h3><p>Place the kit’s NPN transistor exactly as it appears in the reference layout. Do not guess its leg order. Connect <strong>pin 9 → 1 kΩ resistor → transistor base</strong>. Connect the transistor emitter to <strong>GND</strong>. The 1 kΩ resistor limits the small control current into the base.</p><label><input type="checkbox" data-step="2"> I matched the transistor orientation and checked pin 9 → 1 kΩ → base.</label></article>
+      <article class="step"><h3>Step 3 — Add the passive buzzer</h3><p>Follow the reference image to connect the passive buzzer between <strong>5 V</strong> and the transistor collector. Match the buzzer’s marked polarity and the shown breadboard rows. The transistor lets the board control the buzzer circuit without asking a single Arduino pin to supply the buzzer’s working current directly.</p><p>Before plugging USB back in, trace the whole route with your finger: <strong>pin 9 → 1 kΩ → base</strong>; <strong>emitter → GND</strong>; and the buzzer’s <strong>5 V → collector</strong> path.</p><label><input type="checkbox" data-step="3"> I checked the buzzer polarity, 5 V path, collector, and shared GND.</label></article>
+      <article class="step"><h3>Step 4 — Upload the pitch sweep</h3><p>Connect USB, select your Uno-compatible board and serial port in Arduino IDE, then upload this original sketch.</p><pre><code>const byte buzzerPin = 9;
+const int centerPitch = 2000;
+const int sweepSize = 500;
+
+void setup() {
+  pinMode(buzzerPin, OUTPUT);
+}
+
+void loop() {
+  for (int degrees = 0; degrees &lt; 360; degrees++) {
+    float wavePosition = sin(degrees * PI / 180.0);
+    int toneVal = centerPitch + wavePosition * sweepSize;
+    tone(buzzerPin, toneVal);
+    delay(1);
+  }
+}</code></pre><p><strong>What the code means:</strong> <code>tone()</code> sends a square wave at the requested frequency. <code>sin()</code> creates a smooth value from −1 to +1, so adding it to 2000 produces roughly 2000 ± 500 Hz. The Arduino math function needs radians, which is why the code converts degrees using <code>PI / 180.0</code>.</p><label><input type="checkbox" data-step="4"> The sketch uploaded without an error.</label></article>
+      <article class="step"><h3>Step 5 — Listen and troubleshoot</h3><p>You should hear a smooth rising-and-falling warning sound. It is not a stored song: the code keeps changing the frequency, and the passive buzzer turns those changes into changing pitch. If you hear nothing or only a steady sound:</p><ol><li>Unplug USB before moving wires.</li><li>Confirm you used a passive, not active, buzzer.</li><li>Compare every breadboard row, transistor orientation, and buzzer polarity with the reference image.</li><li>Check pin 9, the 1 kΩ resistor, transistor base, collector, emitter, 5 V, and GND paths.</li><li>Confirm the sketch calls <code>tone(buzzerPin, toneVal)</code> and that the correct board and port were selected.</li></ol><label><input type="checkbox" data-step="5"> I hear the pitch rise and fall.</label></article>
+    </section>
+
+    <section class="challenge" aria-labelledby="challenge-heading"><h2 id="challenge-heading">Tiny challenge</h2><p>Predict what will happen if you change <code>sweepSize</code> from <code>500</code> to <code>100</code>. Upload the change, listen for a narrower pitch glide, then restore 500. Explain why changing a frequency value changes the sound even though the wiring stays the same.</p></section>
+
+    <section class="lesson-complete" aria-live="polite"><h2>Progress</h2><p id="progress-text">0 of 5 checks complete.</p><progress id="progress" value="0" max="5">0%</progress><button id="reset-progress" type="button">Reset this lesson’s checks</button></section>
+
+    <section class="sources" aria-labelledby="source-heading"><h2 id="source-heading">Reference pages</h2><ul><li><a href="https://docs.freenove.com/projects/fnk0017/en/latest/fnk0017/codes/tutorial/9_Buzzer.html">Freenove Ultimate Starter Kit — Chapter 9: Buzzer, Project 9.2</a></li><li><a href="https://docs.freenove.com/projects/fnk0017/en/latest/index.html">Freenove Ultimate Starter Kit online tutorial index</a></li></ul><p>The unchanged reference image and upstream material are from Freenove’s Ultimate Starter Kit and are used under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC BY-NC-SA 3.0</a>. Attribution, noncommercial, and ShareAlike requirements apply.</p></section>
+  </main>
+  <script src="../lesson.js"></script>
+</body>
+</html>
