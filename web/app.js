@@ -22,6 +22,11 @@ function render() {
     node.querySelector('.summary').textContent = lesson.summary;
     node.querySelector('.concepts').textContent = `Skills: ${lesson.concepts.join(' · ')}`;
     node.querySelector('.coverage').textContent = `Reference: ${lesson.source}`;
+    if (lesson.week === 1) {
+      const link = node.querySelector('.open-lesson');
+      link.href = 'lessons/01-light-your-first-led.html';
+      link.hidden = false;
+    }
     grid.append(node);
   }
 }

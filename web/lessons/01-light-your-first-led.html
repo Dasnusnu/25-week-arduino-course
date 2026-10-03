@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Week 01 — Light Your First LED</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../lesson.css">
+</head>
+<body>
+  <header>
+    <p class="eyebrow">WEEK 01 · BUILD, TEST, EXPLAIN</p>
+    <h1>Light Your First LED</h1>
+    <p>Build an external LED circuit that the Arduino can blink with code. This is a low-voltage USB-powered experiment only.</p>
+    <p><a class="back" href="../">← All lessons</a></p>
+  </header>
+  <main class="lesson-page">
+    <section class="lesson-summary" aria-labelledby="goal-heading">
+      <div>
+        <h2 id="goal-heading">Your goal</h2>
+        <p>Use pin 13 to send a repeating HIGH/LOW signal through a 220 Ω resistor and LED. The LED should turn on for one second and off for one second.</p>
+      </div>
+      <aside><strong>Time:</strong> 20–30 min<br><strong>Difficulty:</strong> first build<br><strong>Keep it safe:</strong> unplug USB before changing wires.</aside>
+    </section>
+
+    <section aria-labelledby="parts-heading">
+      <h2 id="parts-heading">Gather the parts</h2>
+      <figure><img src="../assets/lesson-01/lesson-01-components.jpg" alt="Reference page showing an Uno-compatible board, breadboard, USB cable, LED, 220 ohm resistor, push button, and jumper wires."><figcaption>Reference image: Freenove Ultimate Starter Kit, <em>Tutorial.pdf</em>, Chapter 1, PDF page 14 / printed page 10. This lesson uses the board, breadboard, USB cable, LED, 220 Ω resistor, and jumper wires; the pictured button is not needed for the coded build.</figcaption></figure>
+      <ul class="parts"><li>Uno-compatible board and USB cable</li><li>Breadboard</li><li>1 LED</li><li>1 × 220 Ω resistor</li><li>2 jumper wires</li></ul>
+    </section>
+
+    <section class="steps" aria-labelledby="steps-heading">
+      <h2 id="steps-heading">Build it, one check at a time</h2>
+      <article class="step"><h3>Step 1 — Identify the LED legs</h3><p>The longer leg is the <strong>anode (+)</strong>; the shorter leg and flat side are the <strong>cathode (−)</strong>. If you reverse it, the LED normally will not light, but do not force it.</p><label><input type="checkbox" data-step="1"> I found the long and short LED legs.</label></article>
+      <article class="step"><h3>Step 2 — Place the LED and resistor</h3><p>With USB disconnected, put the LED across the breadboard’s center gap so its legs are not in the same connected row. Put one end of the 220 Ω resistor in the same row as the long LED leg. The resistor limits current and protects the LED.</p><label><input type="checkbox" data-step="2"> My LED legs are in separate rows and the resistor reaches the long leg.</label></article>
+      <article class="step"><h3>Step 3 — Wire pin 13 and ground</h3><p>Connect <strong>digital pin 13 → 220 Ω resistor → LED long leg</strong>. Connect the LED short leg to <strong>GND</strong>. Check this path before plugging in USB.</p><figure><img src="../assets/lesson-01/lesson-01-wiring.jpg" alt="Reference schematic and breadboard wiring diagram showing Arduino pin 13 through a 220 ohm resistor and LED to ground."><figcaption>Reference image: Freenove Ultimate Starter Kit, <em>Tutorial.pdf</em>, Chapter 1 Project 1.2, PDF page 24 / printed page 20. The schematic is pin 13 → R1 220 Ω → LED1 → ground.</figcaption></figure><label><input type="checkbox" data-step="3"> I verified the complete pin 13 → resistor → LED → GND path.</label></article>
+      <article class="step"><h3>Step 4 — Upload the sketch</h3><p>Connect USB, select your Uno-compatible board and its serial port in Arduino IDE, then paste and upload this sketch.</p><pre><code>void setup() {
+  pinMode(13, OUTPUT);
+}
+
+void loop() {
+  digitalWrite(13, HIGH);
+  delay(1000);
+  digitalWrite(13, LOW);
+  delay(1000);
+}</code></pre><p><strong>What the code means:</strong> <code>setup()</code> runs once and makes pin 13 an output. <code>loop()</code> repeats forever. <code>HIGH</code> sends the on signal, <code>LOW</code> sends the off signal, and <code>delay(1000)</code> waits one second.</p><label><input type="checkbox" data-step="4"> The sketch uploaded without an error.</label></article>
+      <article class="step"><h3>Step 5 — Check your work</h3><p>The external LED should blink: one second on, one second off. If it does not:</p><ol><li>Unplug USB before moving wires.</li><li>Confirm the LED is not reversed.</li><li>Confirm the 220 Ω resistor is in series, not bypassed.</li><li>Confirm the wire starts on pin 13 and ends at GND through the LED path.</li><li>Check the correct board and port are selected, then upload again.</li></ol><label><input type="checkbox" data-step="5"> My LED blinks once per second.</label></article>
+    </section>
+
+    <section class="challenge" aria-labelledby="challenge-heading"><h2 id="challenge-heading">Tiny challenge</h2><p>Change both <code>delay(1000)</code> lines to <code>delay(250)</code>, upload, and predict what will happen before you look. Then restore 1000 when you are done.</p></section>
+
+    <section class="lesson-complete" aria-live="polite"><h2>Progress</h2><p id="progress-text">0 of 5 checks complete.</p><progress id="progress" value="0" max="5">0%</progress><button id="reset-progress" type="button">Reset this lesson’s checks</button></section>
+
+    <section class="sources" aria-labelledby="source-heading"><h2 id="source-heading">Validation reference</h2><p>This original lesson plan was checked against Freenove’s <em>Ultimate Starter Kit Tutorial</em>, Chapter 1 Project 1.2 and its included sketch <code>Sketches/Sketch_1.2.1_Control_LED_by_Control_Board/Sketch_1.2.1_Control_LED_by_Control_Board.ino</code>. The source pack is stored locally in <code>sources/freenove-ultimate-starter-kit/</code>.</p><p>The reference images and upstream material are used under the upstream <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC BY-NC-SA 3.0</a> terms. Attribution and ShareAlike/noncommercial requirements apply.</p></section>
+  </main>
+  <script src="../lesson.js"></script>
+</body>
+</html>
