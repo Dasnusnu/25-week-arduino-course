@@ -34,6 +34,7 @@ function render() {
       9: '09-the-room-thermometer.html',
       10: '10-the-water-detector.html',
       11: '11-words-on-a-real-screen.html',
+      12: '12-the-secret-password-pad.html',
     };
     if (lessonPages[lesson.week]) {
       const link = node.querySelector('.open-lesson');
