@@ -31,6 +31,7 @@ function render() {
       6: '06-mix-your-own-colours.html',
       7: '07-make-numbers-appear.html',
       8: '08-the-counting-machine.html',
+      9: '09-the-room-thermometer.html',
     };
     if (lessonPages[lesson.week]) {
       const link = node.querySelector('.open-lesson');

@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Week 09 — The Room Thermometer</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../lesson.css">
+</head>
+<body>
+  <header>
+    <p class="eyebrow">WEEK 09 · A TINY WEATHER STATION</p>
+    <h1>The Room Thermometer</h1>
+    <p>Ask a DHT11 sensor for two readings—temperature and humidity—then watch them arrive in the Serial Monitor.</p>
+    <p><a class="back" href="../">← All lessons</a></p>
+  </header>
+  <main class="lesson-page">
+    <section class="lesson-summary" aria-labelledby="goal-heading">
+      <div><h2 id="goal-heading">Your goal</h2><p>Wire the Freenove kit’s four-pin DHT11 with a 10 kΩ pull-up resistor, read it through Arduino pin 10, and print temperature and humidity once per second.</p></div>
+      <aside><strong>Time:</strong> 35–45 min<br><strong>Difficulty:</strong> careful sensor wiring<br><strong>Keep it safe:</strong> unplug USB before changing wires.</aside>
+    </section>
+
+    <section aria-labelledby="parts-heading">
+      <h2 id="parts-heading">Gather the parts</h2>
+      <ul class="parts"><li>Uno-compatible board and USB cable</li><li>Breadboard</li><li>1 bare, four-pin DHT11 temperature-and-humidity sensor from the Freenove kit</li><li>1 resistor marked 10 kΩ</li><li>3 male-to-male jumper wires</li></ul>
+      <p><strong>Important:</strong> this circuit is for the source’s bare four-pin DHT11, not a three-pin DHT module. With the vented face toward you and legs pointing down, the source labels the legs 1 VCC, 2 SDA, 3 NC, and 4 GND. Stop if your part’s labels, number of pins, or pin order differ. Use only the board’s USB-powered 5 V and GND rails; never connect wall power, a battery pack, or any higher-voltage circuit.</p>
+    </section>
+
+    <section class="steps" aria-labelledby="steps-heading">
+      <h2 id="steps-heading">Build it, one check at a time</h2>
+      <article class="step"><h3>Step 1 — Read the source circuit</h3><p>Keep USB unplugged. The unchanged Freenove reference page shows Project 22.1’s breadboard build and the start of its sketch. The DHT11 sends calibrated digital data through its <strong>SDA</strong> leg, so this is not an analog-input project.</p><figure><img src="../assets/lesson-09/lesson-09-dht11-hardware-connection.jpg" alt="Freenove reference page showing a bare four-pin DHT11 on a breadboard, a 10 kilo-ohm pull-up resistor to 5 volts, and a wire from the data connection to Arduino pin 10."><figcaption>Reference image: Freenove Ultimate Starter Kit, <em>Tutorial.pdf</em>, Chapter 22, Project 22.1, PDF page 201 / printed page 197. Rasterized unchanged from the permitted source pack under CC BY-NC-SA 3.0.</figcaption></figure><label><input type="checkbox" data-step="1"> I have USB unplugged and can see the source circuit.</label></article>
+      <article class="step"><h3>Step 2 — Place the DHT11 and make its power path</h3><p>Put the DHT11 so that all four legs occupy separate breadboard rows. With its vented face toward you, connect <strong>leg 1 (VCC) → 5 V</strong> and <strong>leg 4 (GND) → GND</strong>. Leave <strong>leg 3 (NC)</strong> unconnected. Do not bend legs together or use an unlabelled sensor as a substitute.</p><p>Before you plug USB back in, trace each wire from the sensor leg label—not from a guessed leg position—to the 5 V or GND rail.</p><label><input type="checkbox" data-step="2"> I checked VCC to 5 V, GND to GND, and left NC empty.</label></article>
+      <article class="step"><h3>Step 3 — Add the data line and its pull-up</h3><p>Connect <strong>leg 2 (SDA) → Arduino pin 10</strong>. Put the <strong>10 kΩ resistor</strong> between that same SDA/pin-10 row and <strong>5 V</strong>. The resistor gently holds the shared data line high when neither device is pulling it low, which lets the one-wire-style conversation begin cleanly.</p><p>Keep the resistor in this exact path: SDA to 5 V. Do not replace it with a 220 Ω LED resistor, and do not connect the DHT11 directly to a pin higher than 5 V.</p><label><input type="checkbox" data-step="3"> I traced SDA to pin 10 and through 10 kΩ to 5 V.</label></article>
+      <article class="step"><h3>Step 4 — Install the matching library</h3><p>This lesson uses the exact <code>dht.h</code> library supplied as <code>DHT.zip</code> in the Freenove source pack. In Arduino IDE, choose <strong>Sketch → Include Library → Add .ZIP Library…</strong>, then select that ZIP. This matters: other libraries can use different include names and code, even when they support a part named DHT11.</p><p>After the library is installed, reconnect USB and choose your Uno-compatible board and serial port. Do not move the sensor or any jumper while the board is powered.</p><label><input type="checkbox" data-step="4"> I installed the supplied DHT.zip library and selected my board and port.</label></article>
+      <article class="step"><h3>Step 5 — Upload, then read the room</h3><p>Upload this original, source-validated sketch. It uses the source’s DHT11 library, pin 10, 9600-baud Serial Monitor, status checks, and one-second reading interval. Then open <strong>Tools → Serial Monitor</strong> and set its speed to <strong>9600 baud</strong>.</p><pre><code>#include &lt;dht.h&gt;
+
+dht DHT;
+int dhtPin = 10;
+
+void setup() {
+  Serial.begin(9600);
+  Serial.println("Room thermometer ready!");
+}
+
+void loop() {
+  int status = DHT.read11(dhtPin);
+
+  switch (status) {
+    case DHTLIB_OK:
+      Serial.print("Humidity: ");
+      Serial.print(DHT.humidity);
+      Serial.print("%, Temperature: ");
+      Serial.print(DHT.temperature);
+      Serial.println(" C");
+      break;
+    case DHTLIB_ERROR_CHECKSUM:
+      Serial.println("DHT11 checksum error — recheck the data wire and resistor.");
+      break;
+    case DHTLIB_ERROR_TIMEOUT:
+      Serial.println("DHT11 timeout — recheck power, ground, and pin 10.");
+      break;
+    default:
+      Serial.println("DHT11 returned an unknown error.");
+      break;
+  }
+
+  delay(1000);
+}</code></pre><p><strong>What success looks like:</strong> the monitor first says “Room thermometer ready!” and then prints a humidity percentage plus a temperature in C about once each second. A checksum or timeout message is useful evidence, not a reason to swap random wires: unplug USB, then check the DHT11’s face-forward pin order, the 5 V/GND paths, pin 10, and the 10 kΩ pull-up. The DHT11 reports a rounded environmental reading; it is a learning sensor, not a medical, safety, or laboratory instrument.</p><label><input type="checkbox" data-step="5"> The sketch uploaded and I saw a temperature and humidity reading.</label></article>
+    </section>
+
+    <section class="challenge" aria-labelledby="challenge-heading"><h2 id="challenge-heading">Tiny challenge</h2><p>Cover the sensor loosely with your hands for a moment without bending its legs. Predict whether temperature, humidity, both, or neither might change. Then compare a few Serial Monitor lines. Which <code>case</code> handles a successful reading, and why is a delay useful for this slow environmental sensor?</p></section>
+    <section class="lesson-complete" aria-live="polite"><h2>Progress</h2><p id="progress-text">0 of 5 checks complete.</p><progress id="progress" value="0" max="5">0%</progress><button id="reset-progress" type="button">Reset this lesson’s checks</button></section>
+    <section class="sources" aria-labelledby="source-heading"><h2 id="source-heading">Reference pages</h2><ul><li><a href="https://docs.freenove.com/projects/fnk0017/en/latest/fnk0017/codes/tutorial/22_Temperature%26Humidity.html">Freenove Ultimate Starter Kit — Chapter 22: DHT11 component details, pin-10 circuit, DHT.zip setup, and serial sketch</a></li><li><a href="https://github.com/Freenove/Freenove_Ultimate_Starter_Kit/blob/master/readme.md">Freenove Ultimate Starter Kit upstream repository and CC BY-NC-SA 3.0 license declaration</a></li></ul><p>The unchanged reference image and upstream material are from Freenove’s Ultimate Starter Kit and are used under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC BY-NC-SA 3.0</a>. Attribution, noncommercial, and ShareAlike requirements apply.</p></section>
+  </main>
+  <script src="../lesson.js"></script>
+</body>
+</html>
