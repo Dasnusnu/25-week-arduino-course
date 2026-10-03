@@ -1,0 +1,34 @@
+# 25week-guide
+
+A local, noncommercial starter project for creating original, interactive HTML lessons for a 25-week Arduino/electronics curriculum.
+
+## Current state
+
+- `sources/freenove-ultimate-starter-kit/` is a full local checkout of Freenove's Ultimate Starter Kit materials (commit `5315f61497eea49553aa1b70721751fb16a497e5`), including `Tutorial.pdf`, troubleshooting material, schematics, and Arduino sketches.
+- `data/lessons.json` is the curriculum inventory and source-coverage map.
+- `web/` is a dependency-free interactive lesson-board prototype. It intentionally contains no copied vendor lesson text or images.
+
+## Run locally
+
+```bash
+cd /home/jacob/projects/25week-guide
+python3 -m http.server 8080
+```
+
+Then open `http://localhost:8080/web/`.
+
+## Source and license
+
+The downloaded Freenove source declares **Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported (CC BY-NC-SA 3.0)** in its `readme.md` and `Tutorial.pdf`.
+
+That permits noncommercial derivatives with attribution and ShareAlike. Do not remove attribution, use its branded assets, or publish this project commercially without independently clearing the rights. The planned HTML guide should be original writing and diagrams; the upstream files are retained as reference/source material.
+
+Upstream: https://github.com/Freenove/Freenove_Ultimate_Starter_Kit
+License: https://creativecommons.org/licenses/by-nc-sa/3.0/
+
+## Next build steps
+
+1. Confirm the exact physical kit/component variants and pin labels.
+2. Add original step-by-step instructions, wiring diagrams, safety notes, code, and troubleshooting to each lesson.
+3. Add only sources whose reuse terms are compatible with this noncommercial CC BY-NC-SA project.
+4. Run each sketch against the actual Uno-compatible board before marking it verified.

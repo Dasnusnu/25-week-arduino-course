@@ -1,0 +1,8 @@
+# Downloaded third-party reference packs stay local. Their provenance and terms
+# are recorded in SOURCES.md; do not mirror them without separate review.
+sources/
+
+# Local static-preview and editor files
+__pycache__/
+*.pyc
+.DS_Store

@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>25-Week Arduino Guide</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <p class="eyebrow">LOCAL CURRICULUM WORKBENCH</p>
+    <h1>25-Week Arduino Guide</h1>
+    <p>Lesson inventory and build status. Content remains intentionally original; upstream material is referenced, not displayed here.</p>
+  </header>
+  <main>
+    <section class="controls" aria-label="Lesson filters">
+      <label>Find a lesson <input id="search" type="search" placeholder="e.g. RFID, display, sensor"></label>
+      <label><input id="covered" type="checkbox"> Show source-covered lessons only</label>
+      <span id="count" aria-live="polite"></span>
+    </section>
+    <section id="lessons" class="lesson-grid" aria-label="Lessons"></section>
+  </main>
+  <template id="lesson-template">
+    <article class="lesson">
+      <div class="lesson-head"><span class="week"></span><span class="status"></span></div>
+      <h2></h2><p class="summary"></p>
+      <p class="concepts"></p><p class="coverage"></p>
+    </article>
+  </template>
+  <script src="app.js"></script>
+</body>
+</html>
