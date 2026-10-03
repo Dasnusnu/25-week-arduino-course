@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Week 07 — Make Numbers Appear</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../lesson.css">
+</head>
+<body>
+  <header>
+    <p class="eyebrow">WEEK 07 · SHIFTED-OUT NUMBERS</p>
+    <h1>Make Numbers Appear</h1>
+    <p>Use one small 74HC595 chip to send eight on/off choices to a one-digit 7-segment display. This is a low-voltage, USB-powered experiment only.</p>
+    <p><a class="back" href="../">← All lessons</a></p>
+  </header>
+  <main class="lesson-page">
+    <section class="lesson-summary" aria-labelledby="goal-heading">
+      <div><h2 id="goal-heading">Your goal</h2><p>Wire a common-anode 1-digit 7-segment display through a 74HC595 shift register, then make it count from 0 to 9 using Arduino pins 11, 12, and 13.</p></div>
+      <aside><strong>Time:</strong> 40–50 min<br><strong>Difficulty:</strong> careful multi-wire build<br><strong>Keep it safe:</strong> unplug USB before changing wires.</aside>
+    </section>
+
+    <section aria-labelledby="parts-heading">
+      <h2 id="parts-heading">Gather the parts</h2>
+      <ul class="parts"><li>Uno-compatible board and USB cable</li><li>Breadboard</li><li>1 74HC595 shift-register IC</li><li>1 common-anode 1-digit 7-segment display</li><li>8 resistors marked 220 Ω</li><li>18 male-to-male jumper wires</li></ul>
+      <p><strong>Important:</strong> this lesson follows the Freenove kit’s common-anode display and its source layout. Do not substitute a display with unknown pinout or a common-cathode display. Use only the board’s 5 V, GND, and pins 11–13 connections shown here; never connect this breadboard to wall power, a battery pack, or a higher-voltage circuit.</p>
+    </section>
+
+    <section class="steps" aria-labelledby="steps-heading">
+      <h2 id="steps-heading">Build it, one check at a time</h2>
+      <article class="step"><h3>Step 1 — Read the source circuit before plugging in</h3><p>Keep USB unplugged. The unchanged Freenove reference page below contains both the schematic and breadboard layout for Project 17.1. It shows a 74HC595 between the board and a common-anode one-digit display. Each of the eight LED paths uses its own 220 Ω resistor.</p><figure><img src="../assets/lesson-07/lesson-07-seven-segment-circuit.jpg" alt="Freenove reference page showing a 74HC595 shift register controlled by Arduino pins 11, 12, and 13, eight 220 ohm resistors, and a one-digit common-anode seven-segment display."><figcaption>Reference image: Freenove Ultimate Starter Kit, <em>Tutorial.pdf</em>, Chapter 17, Project 17.1, PDF page 159 / printed page 155. Rasterized unchanged from the permitted source pack under CC BY-NC-SA 3.0.</figcaption></figure><label><input type="checkbox" data-step="1"> I have USB unplugged and can see the source circuit.</label></article>
+      <article class="step"><h3>Step 2 — Give the 74HC595 safe power connections</h3><p>Place the 74HC595 across the breadboard centre gap, with its notch matching the reference image. Connect <strong>pin 16 (VCC)</strong> and <strong>pin 10 (MR)</strong> to <strong>5 V</strong>. Connect <strong>pin 8 (GND)</strong> and <strong>pin 13 (OE)</strong> to <strong>GND</strong>. MR is the reset input and OE controls whether the outputs are enabled; these connections keep the chip awake and its outputs available.</p><p>Count IC pins from the notch or dot, not from the printed label direction. A one-pin mistake can put 5 V in the wrong place, so compare every power wire with the source image before reconnecting USB.</p><label><input type="checkbox" data-step="2"> I checked pins 16 and 10 to 5 V, plus pins 8 and 13 to GND.</label></article>
+      <article class="step"><h3>Step 3 — Add the three control wires</h3><p>Connect <strong>Arduino pin 11 → 74HC595 pin 14 (DS)</strong>. Connect <strong>Arduino pin 13 → 74HC595 pin 11 (SH_CP)</strong>. Connect <strong>Arduino pin 12 → 74HC595 pin 12 (ST_CP)</strong>. Think of these as data, clock, and latch: data carries one bit, clock moves it into the chip, and latch makes the new eight-bit pattern appear together.</p><p>Keep these three wires separate from the 5 V and GND rails. The names in parentheses are printed in the source schematic; the pin numbers are the safest way to check the connections.</p><label><input type="checkbox" data-step="3"> I traced Arduino 11, 13, and 12 to DS 14, SH_CP 11, and ST_CP 12.</label></article>
+      <article class="step"><h3>Step 4 — Connect the display one resistor at a time</h3><p>Put the 1-digit 7-segment display across the breadboard gap so all its legs are separate. This kit part has a <strong>common anode</strong>: connect its common terminals to <strong>5 V</strong> exactly as the reference layout shows. Then make eight separate routes from the 74HC595 outputs <strong>Q0–Q7</strong> to the display’s individual segment/decimal-point legs. Put <strong>one 220 Ω resistor in every route</strong>.</p><p>Use the source diagram’s display pin designation and colour routes; display packages can look alike while their physical leg order differs. Never connect an output directly to a display segment, never share one resistor between segments, and never guess a leg’s purpose from its position.</p><label><input type="checkbox" data-step="4"> I matched the source pin map and found eight separate 220 Ω paths from Q0–Q7.</label></article>
+      <article class="step"><h3>Step 5 — Upload the number loop</h3><p>Reconnect USB, select your Uno-compatible board and serial port in Arduino IDE, then upload this original beginner-friendly sketch. It uses the same source-validated common-anode encodings for digits 0–9, but limits the first experiment to numbers.</p><pre><code>const int latchPin = 12;
+const int clockPin = 13;
+const int dataPin = 11;
+
+const byte digits[] = {
+  0xc0, 0xf9, 0xa4, 0xb0, 0x99,
+  0x92, 0x82, 0xf8, 0x80, 0x90
+};
+
+void setup() {
+  pinMode(latchPin, OUTPUT);
+  pinMode(clockPin, OUTPUT);
+  pinMode(dataPin, OUTPUT);
+}
+
+void loop() {
+  for (int i = 0; i &lt; 10; i++) {
+    digitalWrite(latchPin, LOW);
+    shiftOut(dataPin, clockPin, MSBFIRST, digits[i]);
+    digitalWrite(latchPin, HIGH);
+    delay(1000);
+  }
+}</code></pre><p><strong>What the code means:</strong> each byte is an eight-switch pattern. This common-anode wiring is <em>active low</em>, so a <code>0</code> bit turns a selected segment on and a <code>1</code> bit turns it off. <code>shiftOut</code> sends all eight choices, and the latch edge updates the display. You should see 0 through 9, one number per second.</p><p>If it stays blank or shows the wrong pattern, unplug USB first. Recheck the display type, both common-anode 5 V connections, all eight 220 Ω resistors, 74HC595 power pins, and the three signal wires. Do not rearrange display legs while powered.</p><label><input type="checkbox" data-step="5"> The sketch uploaded and I saw the display count from 0 to 9.</label></article>
+    </section>
+
+    <section class="challenge" aria-labelledby="challenge-heading"><h2 id="challenge-heading">Tiny challenge</h2><p>Pick a number from 0 to 9. Find its byte in <code>digits[]</code>, then predict which segments need to be dark for that shape. Change only the <code>delay(1000)</code> to <code>delay(250)</code>, observe the faster count, then restore it. Why can one byte control eight separate LED paths?</p></section>
+    <section class="lesson-complete" aria-live="polite"><h2>Progress</h2><p id="progress-text">0 of 5 checks complete.</p><progress id="progress" value="0" max="5">0%</progress><button id="reset-progress" type="button">Reset this lesson’s checks</button></section>
+    <section class="sources" aria-labelledby="source-heading"><h2 id="source-heading">Reference pages</h2><ul><li><a href="https://docs.freenove.com/projects/fnk0017/en/latest/fnk0017/codes/tutorial/17_Digital_Display.html">Freenove Ultimate Starter Kit — Chapter 17: Digital Display, Project 17.1 circuit, display map, and sketch</a></li><li><a href="https://docs.freenove.com/projects/fnk0017/en/latest/index.html">Freenove Ultimate Starter Kit online tutorial index</a></li></ul><p>The unchanged reference image and upstream material are from Freenove’s Ultimate Starter Kit and are used under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC BY-NC-SA 3.0</a>. Attribution, noncommercial, and ShareAlike requirements apply.</p></section>
+  </main>
+  <script src="../lesson.js"></script>
+</body>
+</html>
