@@ -26,6 +26,7 @@ function render() {
       1: '01-light-your-first-led.html',
       2: '02-make-some-noise.html',
       3: '03-the-melody-machine.html',
+      4: '04-the-control-knob.html',
     };
     if (lessonPages[lesson.week]) {
       const link = node.querySelector('.open-lesson');

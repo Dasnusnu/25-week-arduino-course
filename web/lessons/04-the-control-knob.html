@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Week 04 — The Control Knob</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../lesson.css">
+</head>
+<body>
+  <header>
+    <p class="eyebrow">WEEK 04 · BUILD, MEASURE, EXPLAIN</p>
+    <h1>The Control Knob</h1>
+    <p>Turn a rotary potentiometer and let your Arduino measure the changing voltage. This is a low-voltage, USB-powered experiment only.</p>
+    <p><a class="back" href="../">← All lessons</a></p>
+  </header>
+  <main class="lesson-page">
+    <section class="lesson-summary" aria-labelledby="goal-heading">
+      <div>
+        <h2 id="goal-heading">Your goal</h2>
+        <p>Make a rotary potentiometer act like a control knob. Arduino pin A0 will read a number from 0 to 1023, then the Serial Monitor will show both that reading and an estimated voltage.</p>
+      </div>
+      <aside><strong>Time:</strong> 25–35 min<br><strong>Difficulty:</strong> beginner build<br><strong>Keep it safe:</strong> unplug USB before changing wires.</aside>
+    </section>
+
+    <section aria-labelledby="parts-heading">
+      <h2 id="parts-heading">Gather the parts</h2>
+      <ul class="parts"><li>Uno-compatible board and USB cable</li><li>Breadboard</li><li>1 rotary potentiometer (10 kΩ in the kit)</li><li>3 male-to-male jumper wires</li></ul>
+      <p><strong>Important:</strong> this is a sensing circuit, not a motor controller. Use only the board’s 5 V and GND pins shown in the reference. Do not connect this project to a battery pack, wall power, or any higher-voltage circuit.</p>
+    </section>
+
+    <section class="steps" aria-labelledby="steps-heading">
+      <h2 id="steps-heading">Build it, one check at a time</h2>
+      <article class="step"><h3>Step 1 — Study the reference circuit</h3><p>Keep USB unplugged. This unchanged page from the permitted Freenove tutorial shows the Project 7.1 schematic and breadboard layout. A potentiometer has three terminals: the two outer terminals are the ends of a resistive track, and the middle terminal is the moving contact, called the wiper.</p><figure><img src="../assets/lesson-04/lesson-04-adc-circuit.jpg" alt="Freenove reference page showing a 10 kilo-ohm rotary potentiometer connected between Arduino 5 volts and ground, with its middle wiper terminal connected to analog input A0."><figcaption>Reference image: Freenove Ultimate Starter Kit, <em>Tutorial.pdf</em>, Chapter 7, Project 7.1, PDF page 69 / printed page 65. Rasterized unchanged from the permitted source pack under CC BY-NC-SA 3.0.</figcaption></figure><label><input type="checkbox" data-step="1"> I have USB unplugged and can see the source circuit.</label></article>
+      <article class="step"><h3>Step 2 — Place the control knob</h3><p>Push the rotary potentiometer into the breadboard so its three terminals land in separate connected rows. Compare its physical position and the wire colors with the reference image. The drawing labels terminal 1 as the <strong>5 V</strong> end, terminal 2 as the <strong>GND</strong> end, and terminal 3 as the middle wiper that goes to <strong>A0</strong>.</p><p>Do not assume a different-looking potentiometer has the same terminal order. If your part’s legs or shaft differ from the source layout, stop and identify the middle wiper from its datasheet or the kit documentation before wiring.</p><label><input type="checkbox" data-step="2"> The potentiometer is seated with three separate terminal rows.</label></article>
+      <article class="step"><h3>Step 3 — Wire the voltage divider</h3><p>Follow the reference exactly: connect potentiometer terminal <strong>1 → 5 V</strong>; terminal <strong>2 → GND</strong>; and the middle wiper, terminal <strong>3 → A0</strong>. A0 does not power the knob; it only measures the wiper voltage. Trace all three wires before reconnecting USB.</p><p>Turning the shaft moves the wiper along the resistive track. That changes the voltage at A0 from near 0 V toward near 5 V. If turning clockwise makes the number move opposite to your prediction, compare the two outer-terminal connections with the source diagram before swapping anything.</p><label><input type="checkbox" data-step="3"> I checked 5 V → terminal 1, GND → terminal 2, and terminal 3 → A0.</label></article>
+      <article class="step"><h3>Step 4 — Upload the reader</h3><p>Connect USB, select your Uno-compatible board and serial port in Arduino IDE, then upload this original sketch.</p><pre><code>void setup() {
+  Serial.begin(9600);
+}
+
+void loop() {
+  int rawReading = analogRead(A0);
+  float voltage = rawReading * (5.0 / 1023.0);
+
+  Serial.print("ADC reading: ");
+  Serial.println(rawReading);
+  Serial.print("Estimated voltage: ");
+  Serial.println(voltage, 2);
+  delay(500);
+}</code></pre><p><strong>What the code means:</strong> <code>analogRead(A0)</code> asks the Uno’s 10-bit analog-to-digital converter (ADC) for a value from 0 to 1023. The calculation <code>5.0 / 1023.0</code> turns that count into an approximate voltage when the board uses a 5 V analog reference. <code>Serial.begin(9600)</code> sets the speed for the Serial Monitor.</p><label><input type="checkbox" data-step="4"> The sketch uploaded without an error.</label></article>
+      <article class="step"><h3>Step 5 — Watch the numbers change</h3><p>Open Arduino IDE’s Serial Monitor and choose <strong>9600 baud</strong>. Turn the knob slowly from one end to the other. You should see readings near 0 at one end and near 1023 at the other, with an estimated voltage that changes from near 0.00 V to near 5.00 V.</p><p>If the display does not change, unplug USB before moving wires, then compare the three potentiometer wires and breadboard rows with the reference image. Confirm the sketch reads A0, the monitor is set to 9600 baud, and no wire is accidentally connected to a digital pin. A value that never reaches exactly 0 or 1023 can still be normal because real parts and supplies are not perfect.</p><label><input type="checkbox" data-step="5"> I saw the Serial Monitor readings change while I turned the knob.</label></article>
+    </section>
+
+    <section class="challenge" aria-labelledby="challenge-heading"><h2 id="challenge-heading">Tiny challenge</h2><p>Before you upload a change, predict the estimated voltage for a raw reading of 512. Then replace <code>delay(500)</code> with <code>delay(100)</code>, observe how quickly the numbers update, and restore 500. Explain why the knob wiring stays the same while the code changes how often you take a measurement.</p></section>
+
+    <section class="lesson-complete" aria-live="polite"><h2>Progress</h2><p id="progress-text">0 of 5 checks complete.</p><progress id="progress" value="0" max="5">0%</progress><button id="reset-progress" type="button">Reset this lesson’s checks</button></section>
+
+    <section class="sources" aria-labelledby="source-heading"><h2 id="source-heading">Reference pages</h2><ul><li><a href="https://docs.freenove.com/projects/fnk0017/en/latest/fnk0017/codes/tutorial/7_ADC.html">Freenove Ultimate Starter Kit — Chapter 7: ADC, Project 7.1</a></li><li><a href="https://docs.freenove.com/projects/fnk0017/en/latest/index.html">Freenove Ultimate Starter Kit online tutorial index</a></li></ul><p>The unchanged reference image and upstream material are from Freenove’s Ultimate Starter Kit and are used under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC BY-NC-SA 3.0</a>. Attribution, noncommercial, and ShareAlike requirements apply.</p></section>
+  </main>
+  <script src="../lesson.js"></script>
+</body>
+</html>
