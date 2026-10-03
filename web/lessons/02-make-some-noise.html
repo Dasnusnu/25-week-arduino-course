@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Week 02 — Make Some Noise</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../lesson.css">
+</head>
+<body>
+  <header>
+    <p class="eyebrow">WEEK 02 · BUILD, TEST, EXPLAIN</p>
+    <h1>Make Some Noise</h1>
+    <p>Use a push button to tell your Arduino when to turn on an active buzzer. This is a low-voltage, USB-powered experiment only.</p>
+    <p><a class="back" href="../">← All lessons</a></p>
+  </header>
+  <main class="lesson-page">
+    <section class="lesson-summary" aria-labelledby="goal-heading">
+      <div>
+        <h2 id="goal-heading">Your goal</h2>
+        <p>Read a button on pin 12. While it is pressed, pin 9 switches an NPN transistor on so the active buzzer can sound. Release the button and the buzzer should be quiet.</p>
+      </div>
+      <aside><strong>Time:</strong> 30–40 min<br><strong>Difficulty:</strong> beginner build<br><strong>Keep it safe:</strong> unplug USB before changing wires.</aside>
+    </section>
+
+    <section aria-labelledby="parts-heading">
+      <h2 id="parts-heading">Gather the parts</h2>
+      <ul class="parts"><li>Uno-compatible board and USB cable</li><li>Breadboard</li><li>1 active buzzer</li><li>1 NPN transistor (the kit’s 8050)</li><li>1 push button</li><li>1 × 1 kΩ resistor and 2 × 10 kΩ resistors</li><li>6 jumper wires</li></ul>
+      <p><strong>Important:</strong> this lesson uses an <strong>active</strong> buzzer, which has its own oscillator and makes one steady pitch when powered. Do not substitute the passive buzzer from the next project.</p>
+    </section>
+
+    <section class="steps" aria-labelledby="steps-heading">
+      <h2 id="steps-heading">Build it, one check at a time</h2>
+      <article class="step"><h3>Step 1 — Study the reference circuit</h3><p>Keep USB unplugged. The reference page shows both the schematic and the breadboard layout for this exact kit. The button node is normally held at 5 V by a 10 kΩ resistor; pressing the button connects that node to GND. That is why this circuit reads a press as <code>LOW</code>.</p><figure><img src="../assets/lesson-02/lesson-02-active-buzzer-circuit.jpg" alt="Freenove reference page with a schematic and breadboard layout for an Arduino active buzzer controlled by a push button, NPN transistor, one 1 kilo-ohm resistor, and two 10 kilo-ohm resistors."><figcaption>Reference image: Freenove Ultimate Starter Kit, <em>Tutorial.pdf</em>, Chapter 9, Project 9.1, PDF page 89 / printed page 85. Reused unchanged under CC BY-NC-SA 3.0.</figcaption></figure><label><input type="checkbox" data-step="1"> I have USB unplugged and can see the reference circuit.</label></article>
+      <article class="step"><h3>Step 2 — Make the button input</h3><p>Build the button section exactly as shown: connect <strong>5 V → 10 kΩ resistor → the pin 12 node</strong>. From that same pin 12 node, go through the other <strong>10 kΩ resistor → push button → GND</strong>. Put the button across the breadboard’s center gap so its two sides are not already connected.</p><label><input type="checkbox" data-step="2"> My pin 12 node is pulled toward 5 V and the button path ends at GND.</label></article>
+      <article class="step"><h3>Step 3 — Add the transistor and buzzer</h3><p>Use the source image to place the kit’s NPN transistor in the same orientation. Do not guess its leg order: match the reference before connecting it. Connect <strong>pin 9 → 1 kΩ resistor → transistor base</strong>. Connect the transistor emitter to <strong>GND</strong>. Connect the buzzer between <strong>5 V</strong> and the transistor’s collector, following the shown buzzer polarity and transistor placement.</p><p>The transistor is the small switch for the buzzer’s current. Pin 9 controls the switch instead of trying to power the buzzer directly.</p><label><input type="checkbox" data-step="3"> I checked pin 9 → 1 kΩ → base, emitter → GND, and the buzzer’s 5 V path.</label></article>
+      <article class="step"><h3>Step 4 — Upload the sketch</h3><p>Connect USB, select your Uno-compatible board and serial port in Arduino IDE, then upload this original sketch.</p><pre><code>const byte buttonPin = 12;
+const byte buzzerPin = 9;
+
+void setup() {
+  pinMode(buttonPin, INPUT);
+  pinMode(buzzerPin, OUTPUT);
+}
+
+void loop() {
+  bool buttonPressed = digitalRead(buttonPin) == LOW;
+  digitalWrite(buzzerPin, buttonPressed ? HIGH : LOW);
+}</code></pre><p><strong>What the code means:</strong> <code>INPUT</code> lets pin 12 read the button circuit. The circuit makes a press read <code>LOW</code>. When that test is true, the code sends <code>HIGH</code> to pin 9, turning the transistor and active buzzer on.</p><label><input type="checkbox" data-step="4"> The sketch uploaded without an error.</label></article>
+      <article class="step"><h3>Step 5 — Test and troubleshoot</h3><p>Press and hold the button. The active buzzer should make one steady sound; releasing the button should stop it. If it does not:</p><ol><li>Unplug USB before moving wires.</li><li>Compare every breadboard row with the reference image, especially the button’s center-gap placement.</li><li>Check that the pin 12 button path reaches GND only through the pressed button.</li><li>Check the transistor orientation and the buzzer polarity against the source layout.</li><li>Confirm the sketch uses pin 12 for input and pin 9 for output, then select the correct board and port before uploading again.</li></ol><label><input type="checkbox" data-step="5"> The buzzer sounds only while I press the button.</label></article>
+    </section>
+
+    <section class="challenge" aria-labelledby="challenge-heading"><h2 id="challenge-heading">Tiny challenge</h2><p>Before you change anything, predict what would happen if the code tested for <code>HIGH</code> instead of <code>LOW</code>. Try it, observe safely, then restore the original test. Explain why the button’s pull-up resistor changes which level means “pressed.”</p></section>
+
+    <section class="lesson-complete" aria-live="polite"><h2>Progress</h2><p id="progress-text">0 of 5 checks complete.</p><progress id="progress" value="0" max="5">0%</progress><button id="reset-progress" type="button">Reset this lesson’s checks</button></section>
+
+    <section class="sources" aria-labelledby="source-heading"><h2 id="source-heading">Reference pages</h2><ul><li><a href="https://docs.freenove.com/projects/fnk0017/en/latest/fnk0017/codes/tutorial/9_Buzzer.html">Freenove Ultimate Starter Kit — Chapter 9: Buzzer, Project 9.1</a></li><li><a href="https://docs.freenove.com/projects/fnk0017/en/latest/index.html">Freenove Ultimate Starter Kit online tutorial index</a></li></ul><p>The unchanged reference image and upstream material are from Freenove’s Ultimate Starter Kit and are used under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC BY-NC-SA 3.0</a>. Attribution, noncommercial, and ShareAlike requirements apply.</p></section>
+  </main>
+  <script src="../lesson.js"></script>
+</body>
+</html>

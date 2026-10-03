@@ -1,4 +1,4 @@
-const lessonKey = '25week-guide:lesson-01:checks';
+const lessonKey = `25week-guide:${window.location.pathname}:checks`;
 const boxes = [...document.querySelectorAll('[data-step]')];
 const progress = document.querySelector('#progress');
 const progressText = document.querySelector('#progress-text');
