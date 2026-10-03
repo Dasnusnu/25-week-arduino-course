@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Week 13 — The Game-Style Joystick</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../lesson.css">
+</head>
+<body>
+  <header>
+    <p class="eyebrow">WEEK 13 · TILT, PRESS, OBSERVE</p>
+    <h1>The Game-Style Joystick</h1>
+    <p>Use a thumb joystick as two analog controls and one push button, then watch its directions appear in the Serial Monitor.</p>
+    <p><a class="back" href="../">← All lessons</a></p>
+  </header>
+  <main class="lesson-page">
+    <section class="lesson-summary" aria-labelledby="goal-heading">
+      <div><h2 id="goal-heading">Your goal</h2><p>Wire a Freenove-style joystick module to an Uno-compatible board, read its X and Y positions, and tell when its built-in switch is pressed.</p></div>
+      <aside><strong>Time:</strong> 30–40 min<br><strong>Difficulty:</strong> five labeled connections<br><strong>Keep it safe:</strong> unplug USB before changing wires.</aside>
+    </section>
+
+    <section aria-labelledby="parts-heading">
+      <h2 id="parts-heading">Gather the parts</h2>
+      <ul class="parts"><li>Uno-compatible board and USB cable</li><li>Freenove-style five-pin joystick module</li><li>5 female-to-male jumper wires</li></ul>
+      <p><strong>Before you start:</strong> this is a low-voltage, USB-powered sensor experiment. Work on a dry, non-metal surface. Disconnect USB before moving a wire, follow the printed pin labels rather than wire colors, and never connect the module to mains power. Stop if your joystick has different labels or more/fewer than five pins: use its own documentation instead of guessing.</p>
+    </section>
+
+    <section class="steps" aria-labelledby="steps-heading">
+      <h2 id="steps-heading">Build it, one check at a time</h2>
+      <article class="step"><h3>Step 1 — Meet the three controls</h3><p>The stick contains two small potentiometers at right angles. Tilting changes two voltages: <strong>VRx</strong> for one direction and <strong>VRy</strong> for the other. Pushing the stick down uses a separate switch named <strong>SW</strong>. That means this one module gives two analog readings and one digital reading.</p><figure><img src="../assets/lesson-13/lesson-13-freenove-joystick-circuit.png" alt="Freenove Chapter 13 reference page showing joystick pins GND, plus 5 volts, VRX, VRY, and SW connected to an Uno-compatible board: VRX to A0, VRY to A1, and SW to pin 8."><figcaption>Reference circuit page: Freenove, <em>Tutorial.pdf</em>, Chapter 13, Project 13.1, printed page 116 / PDF page 120. Reused unchanged under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC BY-NC-SA 3.0</a>; its public source page is linked in <a href="#source-heading">Reference pages</a>.</figcaption></figure><label><input type="checkbox" data-step="1"> I have USB unplugged and found pins GND, +5V, VRx, VRy, and SW.</label></article>
+
+      <article class="step"><h3>Step 2 — Connect power by label</h3><p>With USB unplugged, connect <strong>joystick GND → Arduino GND</strong> and <strong>joystick +5V → Arduino 5V</strong>. Match the labels exactly. Reversing power can damage the module, so do not plug in until both power paths are checked.</p><label><input type="checkbox" data-step="2"> My joystick GND goes to GND and +5V goes to 5V.</label></article>
+
+      <article class="step"><h3>Step 3 — Add the three signal paths</h3><p>Connect <strong>VRx → Arduino A0</strong>, <strong>VRy → Arduino A1</strong>, and <strong>SW → Arduino D8</strong>. A0 and A1 measure the changing joystick voltages; D8 will read the push switch. On a classic Uno, an analog reading is a number from 0 to 1023, but the resting number can vary a little between modules. Do not assume it will be exactly 512.</p><p><strong>Pause:</strong> leave D8 connected only to SW. The sketch enables Arduino’s internal pull-up resistor, so the switch is normally HIGH and reads LOW only while it is pressed.</p><label><input type="checkbox" data-step="3"> I traced VRx to A0, VRy to A1, and SW to D8.</label></article>
+
+      <article class="step"><h3>Step 4 — Upload a direction reader</h3><p>Reconnect USB, select your Uno-compatible board and port in Arduino IDE, and upload this original sketch. Keep the joystick untouched while it starts: it records the starting X and Y values as its center. A <strong>dead zone</strong> of 80 prevents small resting wiggles from being reported as a direction. The source uses the same A0, A1, D8, <code>INPUT_PULLUP</code>, 9600-baud serial, and 200 ms sampling pattern.</p><pre><code>const byte xAxisPin = A0;
+const byte yAxisPin = A1;
+const byte switchPin = 8;
+const int deadZone = 80;
+int centerX;
+int centerY;
+
+const char* directionFor(int value, int center, const char* low, const char* high) {
+  if (value &lt; center - deadZone) return low;
+  if (value &gt; center + deadZone) return high;
+  return "CENTER";
+}
+
+void setup() {
+  pinMode(switchPin, INPUT_PULLUP);
+  Serial.begin(9600);
+  delay(250);
+  centerX = analogRead(xAxisPin);
+  centerY = analogRead(yAxisPin);
+  Serial.println("Joystick reader ready");
+}
+
+void loop() {
+  int xValue = analogRead(xAxisPin);
+  int yValue = analogRead(yAxisPin);
+  bool pressed = digitalRead(switchPin) == LOW;
+
+  Serial.print("X: ");
+  Serial.print(xValue);
+  Serial.print(" (");
+  Serial.print(directionFor(xValue, centerX, "LEFT", "RIGHT"));
+  Serial.print(")  Y: ");
+  Serial.print(yValue);
+  Serial.print(" (");
+  Serial.print(directionFor(yValue, centerY, "UP", "DOWN"));
+  Serial.print(")  Button: ");
+  Serial.println(pressed ? "PRESSED" : "released");
+  delay(200);
+}</code></pre><label><input type="checkbox" data-step="4"> I uploaded the sketch with the stick centered during startup.</label></article>
+
+      <article class="step"><h3>Step 5 — Watch, move, and reset</h3><p>Open <strong>Tools → Serial Monitor</strong> and select <strong>9600 baud</strong>. You should see changing X and Y numbers as you tilt the stick, plus <code>PRESSED</code> only while you push it down. The words LEFT/RIGHT and UP/DOWN depend on the module’s physical orientation; the raw numbers are the important evidence. If a direction appears reversed, do not move wires—change only the labels in the sketch after confirming the reference wiring.</p><p>If there is no output, check the selected board, port, and 9600 baud setting. If every value is stuck, unplug USB before checking the five labeled paths. If a direction appears while untouched, reset the board with the stick released and centered; then, if needed, increase <code>deadZone</code> a little. This reader is for learning and serial observation, not for steering a vehicle, controlling machinery, or any safety-critical device.</p><label><input type="checkbox" data-step="5"> I watched the readings while tilting and pressing, or safely checked the wiring and monitor settings.</label></article>
+    </section>
+
+    <section class="challenge" aria-labelledby="challenge-heading"><h2 id="challenge-heading">Tiny challenge</h2><p>First predict which number will change when you tilt left, then test it. Change <code>deadZone</code> from <code>80</code> to <code>120</code>, restart with the stick centered, and explain why the direction labels become less sensitive.</p></section>
+    <section class="lesson-complete" aria-live="polite"><h2>Progress</h2><p id="progress-text">0 of 5 checks complete.</p><progress id="progress" value="0" max="5">0%</progress><button id="reset-progress" type="button">Reset this lesson’s checks</button></section>
+    <section class="sources" aria-labelledby="source-heading"><h2 id="source-heading">Reference pages</h2><ul><li><a href="https://docs.freenove.com/projects/fnk0017/en/latest/fnk0017/codes/tutorial/13_Joystick.html">Freenove Ultimate Starter Kit — Chapter 13: joystick components, A0/A1/D8 circuit, INPUT_PULLUP behavior, 9600-baud serial sketch, and 200 ms sampling</a></li><li><a href="https://docs.arduino.cc/language-reference/en/functions/analog-io/analogRead/">Arduino documentation — analogRead() range and Uno 10-bit ADC behavior</a></li><li><a href="https://github.com/Freenove/Freenove_Ultimate_Starter_Kit/blob/master/readme.md">Freenove Ultimate Starter Kit upstream repository — CC BY-NC-SA 3.0 declaration</a></li></ul><p>The local reference page is an unchanged Freenove Chapter 13 circuit page used under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC BY-NC-SA 3.0</a> with visible attribution. The learner-facing explanation and center-calibrated dead-zone sketch are original. Technical pins and switch behavior were checked against the retained Freenove source pack and public Chapter 13 page.</p></section>
+  </main>
+  <script src="../lesson.js"></script>
+</body>
+</html>

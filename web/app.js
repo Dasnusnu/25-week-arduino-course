@@ -35,6 +35,7 @@ function render() {
       10: '10-the-water-detector.html',
       11: '11-words-on-a-real-screen.html',
       12: '12-the-secret-password-pad.html',
+      13: '13-the-game-style-joystick.html',
     };
     if (lessonPages[lesson.week]) {
       const link = node.querySelector('.open-lesson');
