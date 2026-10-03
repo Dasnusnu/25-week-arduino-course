@@ -12,7 +12,7 @@
   {"week":11,"title":"Words on a Real Screen","summary":"Print text to an LCD1602 display.","concepts":["LCD","text output"],"source":"Freenove Tutorial.pdf: Ch. 16","covered":true},
   {"week":12,"title":"The Secret Password Pad","summary":"Read a 4×4 keypad and compare an entered code.","concepts":["matrix scanning","state"],"source":"Freenove Tutorial.pdf: Ch. 19","covered":true},
   {"week":13,"title":"The Game-Style Joystick","summary":"Read dual-axis joystick positions and its button.","concepts":["two-axis ADC","dead zone"],"source":"Freenove Tutorial.pdf: Ch. 13","covered":true},
-  {"week":14,"title":"The Clap Trigger","summary":"Detect a sound threshold and trigger an action.","concepts":["threshold","noise handling"],"source":"Complementary licensed source still needed","covered":false},
+  {"week":14,"title":"The Clap Trigger","summary":"Detect a sound threshold and trigger an action.","concepts":["threshold","noise handling"],"source":"Luis Llamas CC BY-NC-SA: KY-038 digital threshold input","covered":true},
   {"week":15,"title":"More Lights Than Pins","summary":"Use a 74HC595 shift register to extend output pins.","concepts":["shift register","serial data"],"source":"Freenove Tutorial.pdf: Ch. 15","covered":true},
   {"week":16,"title":"Small Board, Big Switch","summary":"Use a relay module to control a low-voltage external load.","concepts":["relay isolation","load safety"],"source":"Freenove Tutorial.pdf: Ch. 10","covered":true},
   {"week":17,"title":"The Precision Spinner","summary":"Move a stepper motor in controlled increments.","concepts":["step sequences","motor driver"],"source":"Freenove Tutorial.pdf: Ch. 18","covered":true},

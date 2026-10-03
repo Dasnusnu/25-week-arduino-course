@@ -36,6 +36,7 @@ function render() {
       11: '11-words-on-a-real-screen.html',
       12: '12-the-secret-password-pad.html',
       13: '13-the-game-style-joystick.html',
+      14: '14-the-clap-trigger.html',
     };
     if (lessonPages[lesson.week]) {
       const link = node.querySelector('.open-lesson');

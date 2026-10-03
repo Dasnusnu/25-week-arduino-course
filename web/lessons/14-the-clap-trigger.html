@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Week 14 — The Clap Trigger</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../lesson.css">
+</head>
+<body>
+  <header>
+    <p class="eyebrow">WEEK 14 · LISTEN, ADJUST, RESPOND</p>
+    <h1>The Clap Trigger</h1>
+    <p>Set a sound threshold with a KY-038 microphone module, then use one loud sound to switch the board’s built-in LED.</p>
+    <p><a class="back" href="../">← All lessons</a></p>
+  </header>
+  <main class="lesson-page">
+    <section class="lesson-summary" aria-labelledby="goal-heading">
+      <div><h2 id="goal-heading">Your goal</h2><p>Use the <strong>digital output</strong> of a KY-038 sound-detection module as a threshold trigger—not as a sound meter—and toggle the built-in LED after a clap-like sound.</p></div>
+      <aside><strong>Time:</strong> 25–35 min<br><strong>Difficulty:</strong> three labeled connections<br><strong>Keep it safe:</strong> unplug USB before changing wires.</aside>
+    </section>
+
+    <section aria-labelledby="parts-heading">
+      <h2 id="parts-heading">Gather the parts</h2>
+      <ul class="parts"><li>Uno-compatible board and USB cable</li><li>KY-038 microphone / LM393 comparator module with labeled VCC, GND, DO, and a sensitivity trimmer</li><li>3 female-to-male jumper wires</li></ul>
+      <p><strong>Before you start:</strong> this is a low-voltage, USB-powered experiment. Work on a dry, non-metal surface. Disconnect USB before moving wires; match printed labels, not wire colors; and never connect the module or board to mains electricity. A KY-038 detects a threshold crossing; it does not measure decibels or understand words. Stop if your board lacks the labels above, or if it is a different microphone type—use that board’s own documentation instead of guessing.</p>
+    </section>
+
+    <section class="steps" aria-labelledby="steps-heading">
+      <h2 id="steps-heading">Build it, one check at a time</h2>
+      <article class="step"><h3>Step 1 — Pick the right output</h3><p>The KY-038 combines a microphone and an LM393 comparator. Its <strong>AO</strong> pin is an analog signal; its <strong>DO</strong> pin is a digital yes/no result from the adjustable threshold. This lesson deliberately uses <strong>DO</strong>, so leave AO unconnected. The small screw adjusts when DO reports a sound event.</p><figure><img src="../assets/lesson-14/lesson-14-ky038-wiring.webp" alt="Reference wiring diagram showing a KY-038 microphone module powered from Arduino 5 volts and ground, with its digital output DO connected to Arduino D9."><figcaption>Reference wiring image: Luis Llamas, “Detecting sound with Arduino and KY-038 microphone.” Reused <strong>unchanged</strong> under the source site’s <a href="https://creativecommons.org/licenses/by-nc-sa/">CC BY-NC-SA</a> notice; the original page and licence notice are linked in <a href="#source-heading">Reference pages</a>.</figcaption></figure><label><input type="checkbox" data-step="1"> I found VCC, GND, DO, AO, and the small sensitivity screw, and I will use DO.</label></article>
+
+      <article class="step"><h3>Step 2 — Wire only the documented paths</h3><p>With USB unplugged, make these three connections: <strong>VCC → Arduino 5V</strong>, <strong>GND → Arduino GND</strong>, and <strong>DO → Arduino D9</strong>. Do not connect AO for this project. Check VCC and GND twice before reconnecting USB: reversed power can damage the module.</p><label><input type="checkbox" data-step="2"> My module’s VCC goes to 5V, GND goes to GND, and DO goes to D9.</label></article>
+
+      <article class="step"><h3>Step 3 — Start with a quiet room</h3><p>Reconnect USB. Keep the room as quiet as you reasonably can and do not clap yet. Turn the module’s tiny sensitivity screw only a little at a time with a suitable small screwdriver. The goal is not a magic number: tune until a nearby clap or sharp finger snap can cross the threshold without ordinary room noise causing repeated events. Keep tools away from powered metal contacts, and never force the screw past its stop.</p><p><strong>Important:</strong> the comparator and room noise are different for every module and room. Calibration is an observation step, not a fixed setting.</p><label><input type="checkbox" data-step="3"> I understand that the screw sets a threshold and that I will adjust it slowly in my own room.</label></article>
+
+      <article class="step"><h3>Step 4 — Upload a one-event switch</h3><p>Select your Uno-compatible board and port in Arduino IDE, then upload this original sketch. It reads D9, reacts only to a new HIGH signal, and waits at least 350 ms after a reaction. That edge check plus short lockout helps one noisy burst avoid becoming many switches. The source’s KY-038 example uses D9 as the digital microphone input and D13 as the built-in LED output.</p><pre><code>const byte soundPin = 9;
+const byte ledPin = LED_BUILTIN;
+const unsigned long lockoutMs = 350;
+
+bool ledOn = false;
+bool previousSound = false;
+unsigned long lastTriggerAt = 0;
+
+void setup() {
+  pinMode(soundPin, INPUT);
+  pinMode(ledPin, OUTPUT);
+  Serial.begin(9600);
+  Serial.println("Clap trigger ready");
+}
+
+void loop() {
+  bool soundDetected = digitalRead(soundPin) == HIGH;
+  unsigned long now = millis();
+
+  if (soundDetected &amp;&amp; !previousSound &amp;&amp; now - lastTriggerAt &gt;= lockoutMs) {
+    ledOn = !ledOn;
+    digitalWrite(ledPin, ledOn ? HIGH : LOW);
+    Serial.println(ledOn ? "Triggered: LED ON" : "Triggered: LED OFF");
+    lastTriggerAt = now;
+  }
+
+  previousSound = soundDetected;
+}</code></pre><label><input type="checkbox" data-step="4"> I uploaded the sketch and opened Serial Monitor at 9600 baud.</label></article>
+
+      <article class="step"><h3>Step 5 — Test, tune, and troubleshoot</h3><p>Make one sharp sound near the microphone. The built-in LED should switch state once, and Serial Monitor should print one <code>Triggered</code> line. If it never triggers, make a slightly louder test sound and turn the sensitivity screw a tiny amount before testing again. If it triggers without a sound or flickers through several states, reduce sensitivity a little, move away from fans or speakers, and check that DO—not AO—goes to D9.</p><p>If the module’s indicator changes but the Serial Monitor never prints a trigger, unplug USB and re-check VCC, GND, and DO by their labels. If your exact module’s DO behaves with opposite logic, do not guess from its color: confirm its documentation before changing the <code>== HIGH</code> comparison. This is a desk experiment only—not a security alarm, a hearing test, a medical device, or a control for mains-powered equipment, machinery, or anything safety-critical.</p><label><input type="checkbox" data-step="5"> I tested one sound at a time, or safely checked the wiring and threshold steps.</label></article>
+    </section>
+
+    <section class="challenge" aria-labelledby="challenge-heading"><h2 id="challenge-heading">Tiny challenge</h2><p>Change <code>lockoutMs</code> from <code>350</code> to <code>700</code>. Predict what will happen if you make two snaps quickly, then test it. Explain why a lockout can make a threshold sensor easier to use without making it more accurate.</p></section>
+    <section class="lesson-complete" aria-live="polite"><h2>Progress</h2><p id="progress-text">0 of 5 checks complete.</p><progress id="progress" value="0" max="5">0%</progress><button id="reset-progress" type="button">Reset this lesson’s checks</button></section>
+    <section class="sources" aria-labelledby="source-heading"><h2 id="source-heading">Reference pages</h2><ul><li><a href="https://www.luisllamas.es/en/detect-sound-arduino-ky-038-microphone/">Luis Llamas — Detecting sound with Arduino and KY-038 microphone: module type, AO/DO roles, 5V/GND/DO-to-D9 wiring, threshold adjustment, D9/D13 example, and the site’s CC BY-NC-SA licence notice</a></li><li><a href="https://creativecommons.org/licenses/by-nc-sa/">Creative Commons — CC BY-NC-SA licence family terms for the unchanged reference wiring image</a></li><li><a href="https://docs.arduino.cc/language-reference/en/functions/digital-io/digitalread/">Arduino documentation — digitalRead()</a></li><li><a href="https://docs.arduino.cc/language-reference/en/functions/time/millis/">Arduino documentation — millis()</a></li></ul><p>The local image is an unchanged Luis Llamas wiring diagram used under the source site’s CC BY-NC-SA notice with visible attribution. The learner-facing instructions and edge-triggered, timed-lockout sketch are original. The source supports a KY-038/LM393 digital threshold detector; this lesson does not treat AO as a calibrated sound-level reading.</p></section>
+  </main>
+  <script src="../lesson.js"></script>
+</body>
+</html>
