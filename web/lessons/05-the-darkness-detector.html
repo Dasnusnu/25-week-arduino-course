@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Week 05 — The Darkness Detector</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../lesson.css">
+</head>
+<body>
+  <header>
+    <p class="eyebrow">WEEK 05 · SENSE, DECIDE, RESPOND</p>
+    <h1>The Darkness Detector</h1>
+    <p>Use a light-sensitive resistor to make an LED glow brighter as the room gets darker. This is a low-voltage, USB-powered experiment only.</p>
+    <p><a class="back" href="../">← All lessons</a></p>
+  </header>
+  <main class="lesson-page">
+    <section class="lesson-summary" aria-labelledby="goal-heading">
+      <div>
+        <h2 id="goal-heading">Your goal</h2>
+        <p>Build a voltage divider with a photoresistor, read it on A0, and use the reading to set the brightness of an LED on pin 9. When the photoresistor is covered, the LED should become brighter.</p>
+      </div>
+      <aside><strong>Time:</strong> 30–40 min<br><strong>Difficulty:</strong> beginner sensor build<br><strong>Keep it safe:</strong> unplug USB before changing wires.</aside>
+    </section>
+
+    <section aria-labelledby="parts-heading">
+      <h2 id="parts-heading">Gather the parts</h2>
+      <ul class="parts"><li>Uno-compatible board and USB cable</li><li>Breadboard</li><li>1 photoresistor (light-dependent resistor)</li><li>1 LED</li><li>1 resistor marked 10 kΩ</li><li>1 resistor marked 220 Ω</li><li>5 male-to-male jumper wires</li></ul>
+      <p><strong>Important:</strong> use only the board’s 5 V, GND, A0, and pin 9 connections shown here. This project is for the USB-powered board only: never connect the breadboard to wall power, a battery pack, or a higher-voltage circuit.</p>
+    </section>
+
+    <section class="steps" aria-labelledby="steps-heading">
+      <h2 id="steps-heading">Build it, one check at a time</h2>
+      <article class="step"><h3>Step 1 — Read the source circuit</h3><p>Keep USB unplugged. This unchanged reference page from the permitted Freenove tutorial shows its Project 7.3 schematic and breadboard layout. The left side is the sensor: a 10 kΩ resistor goes from 5 V to a shared measuring point, and the photoresistor goes from that point to GND. The Arduino reads that point on A0.</p><figure><img src="../assets/lesson-05/lesson-05-photoresistor-circuit.jpg" alt="Freenove reference page showing a 10 kilo-ohm resistor from 5 volts to an A0 measuring junction, a photoresistor from the junction to ground, and an LED connected through a 220 ohm resistor to Arduino pin 9."><figcaption>Reference image: Freenove Ultimate Starter Kit, <em>Tutorial.pdf</em>, Chapter 7, Project 7.3, PDF page 76 / printed page 72. Rasterized unchanged from the permitted source pack under CC BY-NC-SA 3.0.</figcaption></figure><label><input type="checkbox" data-step="1"> I have USB unplugged and can see the source circuit.</label></article>
+      <article class="step"><h3>Step 2 — Build the light-measuring divider</h3><p>Put the photoresistor in the breadboard so its two legs are in separate rows. It has no + or − side. Choose one row as the <strong>measuring junction</strong>. Connect <strong>5 V → 10 kΩ resistor → measuring junction</strong>. Connect <strong>measuring junction → A0</strong>. Then connect <strong>measuring junction → photoresistor → GND</strong>. Trace the junction: A0, one end of the 10 kΩ resistor, and one photoresistor leg must all meet there.</p><p>In brighter light, the photoresistor’s resistance decreases. In this source circuit that pulls the A0 junction closer to GND; when it is darker, the junction voltage rises. A0 measures voltage—it does not supply power to the sensor.</p><label><input type="checkbox" data-step="2"> The 10 kΩ resistor and photoresistor meet at the A0 junction.</label></article>
+      <article class="step"><h3>Step 3 — Add the indicator LED</h3><p>Place the LED with its two legs in separate breadboard rows. Connect <strong>pin 9 → 220 Ω resistor → LED long leg (anode)</strong>. Connect the LED short leg (cathode, usually the flat-side leg) to <strong>GND</strong>. The 220 Ω resistor limits LED current; do not omit it. Compare every wire and the LED direction with the reference image before reconnecting USB.</p><p>If your LED is a different shape, use its flat edge and datasheet to identify the cathode rather than guessing. Never move a wire while the USB cable is connected.</p><label><input type="checkbox" data-step="3"> I checked pin 9 → 220 Ω → LED anode and LED cathode → GND.</label></article>
+      <article class="step"><h3>Step 4 — Upload the darkness reader</h3><p>Connect USB, select your Uno-compatible board and serial port in Arduino IDE, then upload this original sketch.</p><pre><code>const int lightPin = A0;
+const int ledPin = 9;
+
+void setup() {
+  pinMode(ledPin, OUTPUT);
+}
+
+void loop() {
+  int rawLight = analogRead(lightPin);
+  analogWrite(ledPin, map(rawLight, 0, 1023, 0, 255));
+  delay(50);
+}</code></pre><p><strong>What the code means:</strong> <code>analogRead(lightPin)</code> turns the A0 voltage into a number from 0 to 1023. The Uno’s ADC has 10-bit resolution. <code>map(..., 0, 1023, 0, 255)</code> changes that range into the 0–255 PWM brightness range for pin 9. In this wiring, darkness produces a higher reading, so the LED becomes brighter.</p><label><input type="checkbox" data-step="4"> The sketch uploaded without an error.</label></article>
+      <article class="step"><h3>Step 5 — Test with a hand shadow</h3><p>Look at the LED, then gently shade the photoresistor with your hand. Do not press hard on its legs. The LED should brighten as the sensor gets darker and dim again when room light reaches it. Try changing the room light too, but do not stare into a bright lamp or point a laser at the sensor.</p><p>If the LED stays dark, unplug USB before checking the LED direction, the 220 Ω resistor, pin 9, and GND. If the LED does not react to light, check that A0 shares exactly one junction with the photoresistor and 10 kΩ resistor; also make sure the other photoresistor leg reaches GND and the other 10 kΩ resistor leg reaches 5 V.</p><label><input type="checkbox" data-step="5"> I shaded the photoresistor and saw the LED change brightness.</label></article>
+    </section>
+
+    <section class="challenge" aria-labelledby="challenge-heading"><h2 id="challenge-heading">Tiny challenge</h2><p>Make a prediction before changing code: which number should be larger, a bright-room reading or a covered-sensor reading? Then change <code>delay(50)</code> to <code>delay(250)</code>, observe the slower response, and restore 50. Explain why timing can change the response without changing the sensor wiring.</p></section>
+
+    <section class="lesson-complete" aria-live="polite"><h2>Progress</h2><p id="progress-text">0 of 5 checks complete.</p><progress id="progress" value="0" max="5">0%</progress><button id="reset-progress" type="button">Reset this lesson’s checks</button></section>
+
+    <section class="sources" aria-labelledby="source-heading"><h2 id="source-heading">Reference pages</h2><ul><li><a href="https://docs.freenove.com/projects/fnk0017/en/latest/fnk0017/codes/tutorial/7_ADC.html">Freenove Ultimate Starter Kit — Chapter 7: ADC, Project 7.3 photoresistor circuit and sketch</a></li><li><a href="https://docs.freenove.com/projects/fnk0017/en/latest/index.html">Freenove Ultimate Starter Kit online tutorial index</a></li></ul><p>The unchanged reference image and upstream material are from Freenove’s Ultimate Starter Kit and are used under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC BY-NC-SA 3.0</a>. Attribution, noncommercial, and ShareAlike requirements apply.</p></section>
+  </main>
+  <script src="../lesson.js"></script>
+</body>
+</html>

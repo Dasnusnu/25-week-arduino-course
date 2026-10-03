@@ -3,7 +3,7 @@
   {"week":2,"title":"Make Some Noise","summary":"Drive an active buzzer from a digital pin.","concepts":["digital output","buzzer"],"source":"Freenove Tutorial.pdf: Ch. 9","covered":true},
   {"week":3,"title":"The Melody Machine","summary":"Generate pitches with a passive buzzer.","concepts":["frequency","tone timing"],"source":"Freenove Tutorial.pdf: Ch. 9","covered":true},
   {"week":4,"title":"The Control Knob","summary":"Read a potentiometer as an analog input.","concepts":["ADC","mapping"],"source":"Freenove Tutorial.pdf: Ch. 7","covered":true},
-  {"week":5,"title":"The Darkness Detector","summary":"Use a light-dependent resistor to measure ambient light.","concepts":["voltage divider","analog sensing"],"source":"Complementary licensed source still needed","covered":false},
+  {"week":5,"title":"The Darkness Detector","summary":"Use a light-dependent resistor to measure ambient light.","concepts":["voltage divider","analog sensing"],"source":"Freenove Tutorial.pdf: Ch. 7, Project 7.3","covered":true},
   {"week":6,"title":"Mix Your Own Colours","summary":"Control an RGB LED using PWM.","concepts":["PWM","RGB mixing"],"source":"Freenove Tutorial.pdf: Ch. 8","covered":true},
   {"week":7,"title":"Make Numbers Appear","summary":"Drive a one-digit seven-segment display.","concepts":["segments","pin mapping"],"source":"Freenove Tutorial.pdf: Ch. 17","covered":true},
   {"week":8,"title":"The Counting Machine","summary":"Drive a four-digit seven-segment display.","concepts":["multiplexing","display refresh"],"source":"Freenove Tutorial.pdf: Ch. 17","covered":true},
