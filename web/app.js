@@ -39,6 +39,7 @@ function render() {
       14: '14-the-clap-trigger.html',
       15: '15-more-lights-than-pins.html',
       16: '16-small-board-big-switch.html',
+      17: '17-the-precision-spinner.html',
     };
     if (lessonPages[lesson.week]) {
       const link = node.querySelector('.open-lesson');

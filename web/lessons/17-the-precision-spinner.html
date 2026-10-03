@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Week 17 — The Precision Spinner</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../lesson.css">
+</head>
+<body>
+  <header>
+    <p class="eyebrow">WEEK 17 · CONTROLLED TURNS, ONE STEP AT A TIME</p>
+    <h1>The Precision Spinner</h1>
+    <p>Tell a geared stepper motor exactly how many small moves to make, then send it back again.</p>
+    <p><a class="back" href="../">← All lessons</a></p>
+  </header>
+  <main class="lesson-page">
+    <section class="lesson-summary" aria-labelledby="goal-heading">
+      <div><h2 id="goal-heading">Your goal</h2><p>Use Arduino pins 11, 10, 9, and 8 to send an ordered four-signal pattern to a ULN2003 driver. The matching geared stepper will make 2,048 controlled steps in one direction, pause, then return.</p></div>
+      <aside><strong>Time:</strong> 35–50 min<br><strong>Difficulty:</strong> careful connections<br><strong>Keep it safe:</strong> use only the matching low-voltage kit parts.</aside>
+    </section>
+
+    <section aria-labelledby="parts-heading">
+      <h2 id="parts-heading">Gather the parts</h2>
+      <ul class="parts"><li>Uno-compatible control board and USB cable</li><li>Matching four-phase geared stepper motor</li><li>Matching ULN2003 stepper-motor driver board</li><li>6 female-to-male jumper wires</li></ul>
+      <p><strong>Safety boundary:</strong> this is a low-voltage kit build. Unplug USB before connecting or moving wires. Keep fingers, hair, sleeves, and loose items away from the shaft while it moves, and let the shaft turn freely—do not force, hold, or block it. Stop and unplug if a part gets hot, smells unusual, or behaves unexpectedly. Never connect the motor or driver directly to an Arduino pin, a wall outlet, mains wiring, or an unknown power source; use the matching ULN2003 board and the source circuit only.</p>
+    </section>
+
+    <section class="steps" aria-labelledby="steps-heading">
+      <h2 id="steps-heading">Build it, one check at a time</h2>
+      <article class="step"><h3>Step 1 — Meet the driver</h3><p>Keep USB unplugged. A stepper does not spin because of one steady signal like a simple DC motor. Its coils need an ordered pattern. The ULN2003 board sits between the Arduino and the matching four-phase geared motor, turning the Arduino’s small control signals into motor-driver signals. Plug the motor’s keyed connector into the driver board gently; do not force it.</p><figure><img src="../assets/lesson-17/lesson-17-freenove-stepper-circuit.png" alt="Freenove Chapter 18 Project 18.1 circuit page showing Arduino pins 11, 10, 9, and 8 wired to ULN2003 inputs IN1 through IN4, plus 5 volt and ground connections and the matching stepper motor connector."><figcaption>Reference image: Freenove Ultimate Starter Kit, <em>Tutorial.pdf</em>, Chapter 18, Project 18.1, printed page 169 / PDF page 173. Rasterized <strong>unchanged</strong> from the permitted source pack under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC BY-NC-SA 3.0</a>; the public tutorial and licence source are linked in <a href="#source-heading">Reference pages</a>.</figcaption></figure><label><input type="checkbox" data-step="1"> I have USB unplugged and the motor is connected only to its matching ULN2003 board.</label></article>
+
+      <article class="step"><h3>Step 2 — Connect the four control signals</h3><p>Copy the source circuit exactly: <strong>Arduino pin 11 → IN1</strong>, <strong>pin 10 → IN2</strong>, <strong>pin 9 → IN3</strong>, and <strong>pin 8 → IN4</strong> on the ULN2003. These labels matter more than the physical order of your jumpers. Check each wire against the printed label before adding power.</p><p>Do not connect any driver input directly to the motor connector. If your driver labels, connector, or motor do not match the pictured kit, stop instead of guessing.</p><label><input type="checkbox" data-step="2"> I traced pins 11, 10, 9, and 8 to IN1, IN2, IN3, and IN4 in that order.</label></article>
+
+      <article class="step"><h3>Step 3 — Give the driver its low-voltage supply</h3><p>Still following the source circuit, connect Arduino <strong>5 V → VCC</strong> and Arduino <strong>GND → GND</strong> on the ULN2003. The source notes that its driver board’s PWR and VCC are connected by default; leave the board configured as supplied. Do not substitute a separate supply, remove jumpers, or change wiring unless you have the documentation for your exact driver and motor.</p><p>Inspect the complete build before reconnecting USB: six jumpers in the source positions, motor plugged into the driver, no loose wire strands, and a clear space around the shaft.</p><label><input type="checkbox" data-step="3"> I matched 5 V and GND to the source circuit and checked the wiring with power disconnected.</label></article>
+
+      <article class="step"><h3>Step 4 — Plan a precise turn</h3><p>The supplied motor has 32 full steps inside its housing and a 1:64 gear reduction. For its output shaft, <strong>32 × 64 = 2048</strong> full steps per turn in the source project. The number of calls to <code>moveOneStep()</code> sets the turn amount; the pause between calls sets the speed. That is why a stepper can repeat a planned movement.</p><p>This lesson uses the source’s simple one-coil-at-a-time sequence. It is intentionally for this matching motor and driver—not a universal recipe for every stepper.</p><label><input type="checkbox" data-step="4"> I can explain that step count controls turn amount and the delay between steps controls speed.</label></article>
+
+      <article class="step"><h3>Step 5 — Upload the spinner sketch</h3><p>Reconnect USB, select your Uno-compatible board and port, then upload this original presentation of the source-validated pin order, one-turn count, sequence, and 2 ms step timing. It makes one full turn, waits one second, makes one full turn back, and repeats. The short <code>delay()</code> inside the movement loop controls speed; while a sketch is in <code>delay()</code>, it is not doing its ordinary loop work.</p><pre><code>const byte outPorts[] = {11, 10, 9, 8};
+const int stepsPerTurn = 32 * 64;
+const byte stepDelayMs = 2;
+
+void setup() {
+  for (byte i = 0; i &lt; 4; i++) {
+    pinMode(outPorts[i], OUTPUT);
+  }
+}
+
+void loop() {
+  moveSteps(true, stepsPerTurn, stepDelayMs);
+  delay(1000);
+  moveSteps(false, stepsPerTurn, stepDelayMs);
+  delay(1000);
+}
+
+void moveSteps(bool clockwise, int steps, byte pauseMs) {
+  for (int i = 0; i &lt; steps; i++) {
+    moveOneStep(clockwise);
+    delay(pauseMs);
+  }
+}
+
+void moveOneStep(bool clockwise) {
+  static byte pattern = 0x01;
+  pattern = clockwise ? (pattern == 0x08 ? 0x01 : pattern &lt;&lt; 1)
+                      : (pattern == 0x01 ? 0x08 : pattern &gt;&gt; 1);
+
+  for (byte i = 0; i &lt; 4; i++) {
+    digitalWrite(outPorts[i], (pattern &amp; (0x01 &lt;&lt; i)) ? HIGH : LOW);
+  }
+}</code></pre><p><strong>What you should see:</strong> the output shaft turns one way, pauses, then returns the other way. If it only vibrates, does not move, or becomes hot, unplug USB before inspecting the six connections and the matching motor/driver pairing against the source circuit. Do not hold the shaft to “help” it, and do not try a stronger or unknown power source.</p><label><input type="checkbox" data-step="5"> I uploaded the sketch and observed the low-voltage result, or safely compared my unplugged build with the reference.</label></article>
+    </section>
+
+    <section class="challenge" aria-labelledby="challenge-heading"><h2 id="challenge-heading">Tiny challenge</h2><p>Before changing anything, predict the result of replacing <code>stepsPerTurn</code> with <code>stepsPerTurn / 4</code>. Try it only with the same matching low-voltage parts. Does the shaft make about a quarter-turn before it returns? Put the full-turn value back when you finish.</p></section>
+    <section class="lesson-complete" aria-live="polite"><h2>Progress</h2><p id="progress-text">0 of 5 checks complete.</p><progress id="progress" value="0" max="5">0%</progress><button id="reset-progress" type="button">Reset this lesson’s checks</button></section>
+    <section class="sources" aria-labelledby="source-heading"><h2 id="source-heading">Reference pages</h2><ul><li><a href="https://docs.freenove.com/projects/fnk0017/en/latest/fnk0017/codes/tutorial/18_Stepper_Motor.html">Freenove Ultimate Starter Kit — Chapter 18, Project 18.1: component list, ULN2003 circuit, pin 11/10/9/8 assignment, 2,048-step geared output, and source sketch</a></li><li><a href="https://github.com/Freenove/Freenove_Ultimate_Starter_Kit/blob/master/readme.md">Freenove Ultimate Starter Kit — upstream repository and CC BY-NC-SA 3.0 licence declaration</a></li><li><a href="https://docs.arduino.cc/language-reference/en/functions/digital-io/digitalwrite/">Arduino documentation — digitalWrite(): writes HIGH or LOW to an output pin</a></li><li><a href="https://docs.arduino.cc/language-reference/en/functions/time/delay/">Arduino documentation — delay(): pauses a sketch for a specified number of milliseconds</a></li></ul><p>The unchanged reference image and upstream material are from Freenove’s Ultimate Starter Kit and are used under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC BY-NC-SA 3.0</a>. Attribution, noncommercial, and ShareAlike requirements apply. The learner-facing instructions and adapted, clearly named sketch are original.</p></section>
+  </main>
+  <script src="../lesson.js"></script>
+</body>
+</html>
