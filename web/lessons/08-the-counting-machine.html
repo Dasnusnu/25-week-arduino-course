@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Week 08 — The Counting Machine</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../lesson.css">
+</head>
+<body>
+  <header>
+    <p class="eyebrow">WEEK 08 · FOUR DIGITS, ONE FAST LOOP</p>
+    <h1>The Counting Machine</h1>
+    <p>Turn the one-digit display idea into a four-digit timer. One 74HC595 controls the shared segments while four Arduino pins take turns choosing a digit.</p>
+    <p><a class="back" href="../">← All lessons</a></p>
+  </header>
+  <main class="lesson-page">
+    <section class="lesson-summary" aria-labelledby="goal-heading">
+      <div><h2 id="goal-heading">Your goal</h2><p>Wire Freenove’s common-anode 4-digit 7-segment display and make it count seconds from 0000 to 9999 with Arduino pins 4–7 and 11–13.</p></div>
+      <aside><strong>Time:</strong> 50–65 min<br><strong>Difficulty:</strong> careful multi-wire build<br><strong>Keep it safe:</strong> unplug USB before moving a wire.</aside>
+    </section>
+
+    <section aria-labelledby="parts-heading">
+      <h2 id="parts-heading">Gather the parts</h2>
+      <ul class="parts"><li>Uno-compatible board and USB cable</li><li>Breadboard</li><li>1 74HC595 shift-register IC</li><li>1 Freenove-compatible common-anode 4-digit 7-segment display</li><li>8 resistors marked 220 Ω</li><li>21 male-to-male jumper wires</li></ul>
+      <p><strong>Important:</strong> this lesson is for the Freenove kit’s common-anode 4-digit display and the exact source layout. Four-digit packages that look similar can have a different leg order or a different common type. Do not substitute an unknown display. Use only USB power and the board’s 5 V/GND connections shown in the reference circuit—never wall power, a battery pack, or a higher-voltage load.</p>
+    </section>
+
+    <section class="steps" aria-labelledby="steps-heading">
+      <h2 id="steps-heading">Build it, one check at a time</h2>
+      <article class="step"><h3>Step 1 — Study the source circuit first</h3><p>Keep USB unplugged. The unchanged Freenove reference page below contains Project 17.2’s hardware connection and its 4-digit display. This design shares eight cathode routes across every digit, then selects one common-anode digit at a time. That quick turn-taking is called <strong>multiplexing</strong>.</p><figure><img src="../assets/lesson-08/lesson-08-four-digit-seven-segment-circuit.jpg" alt="Freenove reference page showing the hardware connection for a 74HC595, eight 220 ohm resistors, and a common-anode four-digit seven-segment display controlled by Arduino pins 4 through 7 and 11 through 13."><figcaption>Reference image: Freenove Ultimate Starter Kit, <em>Tutorial.pdf</em>, Chapter 17, Project 17.2, PDF page 165 / printed page 161. Rasterized unchanged from the permitted source pack under CC BY-NC-SA 3.0.</figcaption></figure><label><input type="checkbox" data-step="1"> I have USB unplugged and can see the source circuit.</label></article>
+      <article class="step"><h3>Step 2 — Power the shift register safely</h3><p>Place the 74HC595 across the breadboard centre gap, with its notch matching the reference image. Connect <strong>pin 16 (VCC)</strong> and <strong>pin 10 (MR)</strong> to <strong>5 V</strong>. Connect <strong>pin 8 (GND)</strong> and <strong>pin 13 (OE)</strong> to <strong>GND</strong>. These connections power the chip, keep reset inactive, and enable its outputs.</p><p>Count IC pins from the notch or dot. Do not rely on the text direction on the chip. Compare each power wire to the source image before reconnecting USB.</p><label><input type="checkbox" data-step="2"> I checked pins 16 and 10 to 5 V, plus pins 8 and 13 to GND.</label></article>
+      <article class="step"><h3>Step 3 — Add the control wires and shared segment routes</h3><p>Connect <strong>Arduino 11 → 74HC595 14 (DS)</strong>, <strong>Arduino 13 → 74HC595 11 (SH_CP)</strong>, and <strong>Arduino 12 → 74HC595 12 (ST_CP)</strong>. Then follow the source image exactly from the 74HC595’s <strong>Q0–Q7</strong> outputs to the display’s eight shared cathode/segment paths. Put <strong>one 220 Ω resistor in each of those eight paths</strong>.</p><p>Do not try to identify the display legs by their physical position: use the source’s display pin diagram and coloured connection drawing. Never wire a segment directly to a 74HC595 output and never combine the eight resistors into one shared resistor.</p><label><input type="checkbox" data-step="3"> I traced pins 11, 13, and 12 to DS, SH_CP, and ST_CP, with eight separate 220 Ω segment paths.</label></article>
+      <article class="step"><h3>Step 4 — Add the four digit-select wires</h3><p>The display’s four common-anode ports decide <em>which</em> digit can light. Follow the source drawing exactly and connect <strong>Arduino 7, 6, 5, and 4</strong> to the display’s four common ports in that order. The sketch switches all four off, turns on only one, sends that digit’s segment pattern, then moves to the next digit.</p><p>Only one common port should be high during a scan. This prevents two digits from fighting to show the same pattern. Check each display port against the reference image before USB is connected.</p><label><input type="checkbox" data-step="4"> I matched Arduino pins 7, 6, 5, and 4 to the four source-designated common ports.</label></article>
+      <article class="step"><h3>Step 5 — Upload the seconds counter</h3><p>Reconnect USB, select your Uno-compatible board and serial port in Arduino IDE, then upload this original sketch. It keeps refreshing the four digits while <code>millis()</code> measures elapsed time, so it needs no extra timer library. The source-validated display encodings, pin assignments, scan order, 5 ms dwell, and blanking pattern are retained.</p><pre><code>const int latchPin = 12;
+const int clockPin = 13;
+const int dataPin = 11;
+const int commonPins[] = {7, 6, 5, 4};
+
+const byte digits[] = {
+  0xc0, 0xf9, 0xa4, 0xb0, 0x99,
+  0x92, 0x82, 0xf8, 0x80, 0x90
+};
+
+unsigned long startedAt;
+
+void writeData(byte value) {
+  digitalWrite(latchPin, LOW);
+  shiftOut(dataPin, clockPin, LSBFIRST, value);
+  digitalWrite(latchPin, HIGH);
+}
+
+void chooseCommon(byte selected) {
+  for (byte i = 0; i &lt; 4; i++) {
+    digitalWrite(commonPins[i], LOW);
+  }
+  digitalWrite(commonPins[selected], HIGH);
+}
+
+void setup() {
+  pinMode(latchPin, OUTPUT);
+  pinMode(clockPin, OUTPUT);
+  pinMode(dataPin, OUTPUT);
+  for (byte i = 0; i &lt; 4; i++) {
+    pinMode(commonPins[i], OUTPUT);
+  }
+  startedAt = millis();
+}
+
+void loop() {
+  unsigned long elapsedSeconds = (millis() - startedAt) / 1000UL;
+  unsigned int number = elapsedSeconds % 10000UL;
+  byte shown[] = {
+    number / 1000,
+    number / 100 % 10,
+    number / 10 % 10,
+    number % 10
+  };
+
+  for (byte place = 0; place &lt; 4; place++) {
+    chooseCommon(place);
+    byte digit = shown[place];
+    writeData(digits[digit]);
+    delay(5);
+    writeData(0xff);
+  }
+}</code></pre><p><strong>What the code means:</strong> the four digits share the same eight segment paths, but each has its own common-anode port. The loop shows one place for 5 ms, blanks the segments, then rapidly scans the next place. Your eyes blend those fast flashes into a steady four-digit number. You should see 0000, 0001, 0002, and onward; after 9999 it starts over at 0000.</p><p>If the display is blank, scrambled, or one digit is missing, unplug USB first. Recheck the display type, its source-specific pin map, all eight 220 Ω resistors, 74HC595 power pins, the 11/13/12 control wires, and the 7/6/5/4 common-port order. Do not rearrange display legs while powered.</p><label><input type="checkbox" data-step="5"> The sketch uploaded and I saw a four-digit seconds counter.</label></article>
+    </section>
+
+    <section class="challenge" aria-labelledby="challenge-heading"><h2 id="challenge-heading">Tiny challenge</h2><p>Predict what should appear at 42 seconds, then wait for it. Find the four expressions that split <code>number</code> into thousands, hundreds, tens, and ones. Why does the sketch blank the segment data with <code>0xff</code> before it scans another digit?</p></section>
+    <section class="lesson-complete" aria-live="polite"><h2>Progress</h2><p id="progress-text">0 of 5 checks complete.</p><progress id="progress" value="0" max="5">0%</progress><button id="reset-progress" type="button">Reset this lesson’s checks</button></section>
+    <section class="sources" aria-labelledby="source-heading"><h2 id="source-heading">Reference pages</h2><ul><li><a href="https://docs.freenove.com/projects/fnk0017/en/latest/fnk0017/codes/tutorial/17_Digital_Display.html#project-4-digit-7-segment-display">Freenove Ultimate Starter Kit — Chapter 17, Project 17.2: 4-digit display circuit, multiplexing explanation, and sketches</a></li><li><a href="https://docs.freenove.com/projects/fnk0017/en/latest/index.html">Freenove Ultimate Starter Kit online tutorial index</a></li></ul><p>The unchanged reference image and upstream material are from Freenove’s Ultimate Starter Kit and are used under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC BY-NC-SA 3.0</a>. Attribution, noncommercial, and ShareAlike requirements apply.</p></section>
+  </main>
+  <script src="../lesson.js"></script>
+</body>
+</html>

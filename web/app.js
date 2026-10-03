@@ -30,6 +30,7 @@ function render() {
       5: '05-the-darkness-detector.html',
       6: '06-mix-your-own-colours.html',
       7: '07-make-numbers-appear.html',
+      8: '08-the-counting-machine.html',
     };
     if (lessonPages[lesson.week]) {
       const link = node.querySelector('.open-lesson');
