@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Week 24 — The Access System</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../lesson.css">
+</head>
+<body>
+  <header>
+    <p class="eyebrow">WEEK 24 · NOTICE, DON’T DECIDE</p>
+    <h1>The Access System</h1>
+    <p>Combine your RC522 reader and LCD into a lab-only screen that notices a tag you own and shows a harmless practice message.</p>
+    <p><a class="back" href="../">← All lessons</a></p>
+  </header>
+  <main class="lesson-page">
+    <section class="lesson-summary" aria-labelledby="goal-heading">
+      <div><h2 id="goal-heading">Your goal</h2><p>Use the retained MIT project’s RC522 and LCD wiring to display “Tag seen” after scanning a user-owned or lab RFID tag. This is a status/output simulation, not an access-control system: it does not identify a person, compare a UID, keep an allow list, unlock anything, or control any real door.</p></div>
+      <aside><strong>Time:</strong> 45–60 min<br><strong>Difficulty:</strong> two connected modules<br><strong>Output:</strong> a 16×2 practice status message</aside>
+    </section>
+
+    <section aria-labelledby="parts-heading">
+      <h2 id="parts-heading">Gather the parts</h2>
+      <ul class="parts"><li>Uno-compatible board and USB cable</li><li>RC522 / MFRC522 RFID reader breakout with antenna board</li><li>I2C LCD1602 module with a four-pin I2C backpack</li><li>One RFID card or key fob that you own or are explicitly authorized to use in a lab</li><li>Breadboard and eleven male-to-male jumper wires</li></ul>
+      <p><strong>Safety and permission boundary:</strong> unplug USB before moving wires. Power the RC522 from <strong>3.3 V only</strong>; never connect it to 5 V. The LCD source connection uses 5 V. Check every printed label, keep metal away from the powered reader antenna, and stop if a part gets hot, damaged, or smells unusual. Scan only user-owned or lab RFID tags with clear permission. <strong>Do not use this lesson to clone, write, alter, bypass, unlock, test, or make decisions about any access credential; do not connect a servo, relay, lock, latch, door, gate, or other actuator.</strong></p>
+    </section>
+
+    <section class="steps" aria-labelledby="steps-heading">
+      <h2 id="steps-heading">Build it, one check at a time</h2>
+      <article class="step"><h3>Step 1 — Separate the source project into safe pieces</h3><p>The retained MIT source connects an RC522, a 16×2 I2C LCD, and a servo. We will use only its published reader and screen connections. The source project later compares a UID and moves a servo; this lesson deliberately excludes those parts. Our screen will say only that a practice tag was noticed. It never labels a tag “authorized” or “denied.”</p><figure><img src="../assets/lesson-22/lesson-22-mit-rfid-wiring-table.png" alt="Unchanged public GitHub capture of the MIT RFID-Based Smart Door Lock System repository page, identifying its project context and MIT license."><figcaption>Reference image: an <strong>unchanged</strong> capture of the public <em>RFID-Based Smart Door Lock System</em> repository by mithra1x. Its README wiring tables and `main.cpp` identify the RC522 and I2C LCD connections used below. The project is under the <a href="https://github.com/mithra1x/RFID-based-Smart-Door-Lock-System/blob/main/LICENSE">MIT License</a>; attribution and the actual public pages are linked in <a href="#source-heading">Reference pages</a>. The source project’s UID comparison, servo, and door behavior are not used.</figcaption></figure><label><input type="checkbox" data-step="1"> USB is unplugged; I will use only an authorized practice tag and a screen message, with no actuator connected.</label></article>
+
+      <article class="step"><h3>Step 2 — Wire the reader exactly</h3><p>With USB still unplugged, follow the retained source’s RC522-to-Uno table. On many RC522 boards, <strong>SDA</strong> means SPI select here, not the Uno’s I²C SDA pin. Read your breakout’s labels rather than guessing from header position. Leave IRQ unconnected.</p><ul><li><strong>RC522 3.3V → Arduino 3.3V</strong></li><li><strong>RC522 GND → Arduino GND</strong></li><li><strong>RC522 SDA (SS) → Arduino D10</strong></li><li><strong>RC522 SCK → Arduino D13</strong></li><li><strong>RC522 MOSI → Arduino D11</strong></li><li><strong>RC522 MISO → Arduino D12</strong></li><li><strong>RC522 RST → Arduino D9</strong></li></ul><p>These Uno SPI pins are specific to this board family. If your board is not Uno-compatible, stop and verify its documented SPI pins before continuing.</p><label><input type="checkbox" data-step="2"> I traced all seven reader connections, including 3.3 V—not 5 V—and left IRQ unconnected.</label></article>
+
+      <article class="step"><h3>Step 3 — Add the four-wire screen</h3><p>Use an I2C LCD1602 with a four-pin backpack, not a bare 16-pin LCD. The retained source’s LCD table gives these exact Uno paths:</p><ul><li><strong>LCD VCC → Arduino 5V</strong></li><li><strong>LCD GND → Arduino GND</strong></li><li><strong>LCD SDA → Arduino A4 (SDA)</strong></li><li><strong>LCD SCL → Arduino A5 (SCL)</strong></li></ul><p>The reader’s `SDA` label and the LCD’s `SDA` label describe different interfaces, so they do not go to the same Arduino pin. On a classic Uno, the LCD’s I2C signals use A4 and A5. If the screen’s labels or your board differ, check its documentation before applying power.</p><label><input type="checkbox" data-step="3"> I traced the LCD’s four labeled paths and understand that its SDA/A4 is separate from the RC522’s SDA/SS/D10.</label></article>
+
+      <article class="step"><h3>Step 4 — Upload a notice-only scan sketch</h3><p>In Arduino IDE, install <strong>MFRC522</strong> by GithubCommunity and the <strong>LiquidCrystal_I2C</strong> library supplied for your LCD/kit. Reconnect USB, select your board and port, upload this original teaching sketch, then open Serial Monitor at <strong>9600 baud</strong>. The source project uses `0x27`, 16 columns, and 2 rows; this sketch keeps that display setup and scan flow, but removes its UID comparison and all servo code. It prints no UID and shows only a practice status.</p><pre><code>#include &lt;SPI.h&gt;
+#include &lt;MFRC522.h&gt;
+#include &lt;Wire.h&gt;
+#include &lt;LiquidCrystal_I2C.h&gt;
+
+const byte ssPin = 10;
+const byte resetPin = 9;
+MFRC522 rfid(ssPin, resetPin);
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+void showWaiting() {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Show practice tag");
+  lcd.setCursor(0, 1);
+  lcd.print("Lab demo only");
+}
+
+void setup() {
+  Serial.begin(9600);
+  SPI.begin();
+  rfid.PCD_Init();
+  lcd.init();
+  lcd.backlight();
+  showWaiting();
+}
+
+void loop() {
+  if (!rfid.PICC_IsNewCardPresent()) return;
+  if (!rfid.PICC_ReadCardSerial()) return;
+
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Tag seen");
+  lcd.setCursor(0, 1);
+  lcd.print("Lab demo only");
+  Serial.println(F("Practice tag noticed."));
+  delay(1500);
+  showWaiting();
+  rfid.PICC_HaltA();
+}</code></pre><p>The message is intentionally not a permission result. This code has no stored UID, matching loop, card-memory command, display of a UID, actuator library, servo pin, relay pin, or door command.</p><label><input type="checkbox" data-step="4"> I installed the two libraries, uploaded the notice-only sketch, and set Serial Monitor to 9600 baud.</label></article>
+
+      <article class="step"><h3>Step 5 — Observe the practice notice</h3><p>Hold your own/lab tag flat near the reader. The LCD should briefly show <strong>Tag seen</strong> and <strong>Lab demo only</strong>, then return to its waiting message. If the LCD backlight is on but letters are missing, unplug USB before gently adjusting its contrast screw or checking its documentation. If no scan is noticed, unplug USB before checking the seven RC522 wires, four LCD wires, library installation, and board selection. Do not replace this message with an approval, denial, name, identity, entry decision, or a command to real hardware.</p><label><input type="checkbox" data-step="5"> I observed the notice from my own/lab tag, or safely inspected the unplugged wiring and code against the references.</label></article>
+    </section>
+
+    <section class="challenge" aria-labelledby="challenge-heading"><h2 id="challenge-heading">Tiny challenge</h2><p>Change the waiting message to another 16-character-or-fewer reminder about the lab boundary. Explain why “tag seen” is an observation while “allowed in” would be a decision this project must not make.</p></section>
+    <section class="lesson-complete" aria-live="polite"><h2>Progress</h2><p id="progress-text">0 of 5 checks complete.</p><progress id="progress" value="0" max="5">0%</progress><button id="reset-progress" type="button">Reset this lesson’s checks</button></section>
+    <section class="sources" aria-labelledby="source-heading"><h2 id="source-heading">Reference pages</h2><ul><li><a href="https://github.com/mithra1x/RFID-based-Smart-Door-Lock-System">RFID-Based Smart Door Lock System — public README: exact RC522/Uno and LCD/Uno tables, project context, and MIT license</a></li><li><a href="https://github.com/mithra1x/RFID-based-Smart-Door-Lock-System/blob/main/main.cpp">RFID-Based Smart Door Lock System main.cpp — `SPI.begin()`, `PCD_Init()`, LCD `0x27` 16×2 setup, LCD methods, scan flow, and halt call; its UID comparison, access text, servo, timing, and door behavior are deliberately excluded</a></li><li><a href="https://github.com/mithra1x/RFID-based-Smart-Door-Lock-System/blob/main/LICENSE">RFID-Based Smart Door Lock System MIT License — reuse terms for the attributed reference capture and source-derived technical details</a></li><li><a href="https://github.com/miguelbalboa/rfid">MFRC522 Arduino library — SPI-based MFRC522 reader workflow, limitations, and Unlicense terms</a></li><li><a href="https://github.com/miguelbalboa/rfid/blob/master/examples/DumpInfo/DumpInfo.ino">MFRC522 DumpInfo example — documented new-card/read-serial and `PICC_HaltA()` flow</a></li><li><a href="https://docs.arduino.cc/learn/communication/wire/">Arduino documentation — Wire/I²C overview for the LCD interface</a></li></ul><p>The reference image is unchanged and visibly attributed to mithra1x’s MIT-licensed repository. The learner-facing instructions and notice-only teaching sketch are original. No physical hardware was tested for this lesson.</p></section>
+  </main>
+  <script src="../lesson.js"></script>
+</body>
+</html>

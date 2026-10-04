@@ -46,6 +46,7 @@ function render() {
       21: '21-the-remote-controlled-lamp.html',
       22: '22-the-card-scanner.html',
       23: '23-green-light-red-light.html',
+      24: '24-the-access-system.html',
     };
     if (lessonPages[lesson.week]) {
       const link = node.querySelector('.open-lesson');

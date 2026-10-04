@@ -22,6 +22,6 @@
   {"week":21,"title":"The Remote-Controlled Lamp","summary":"Combine IR input and an LED output into one device.","concepts":["event control","integration"],"source":"Freenove Tutorial.pdf: Ch. 21; original integration lesson pending","covered":true},
   {"week":22,"title":"The Card Scanner","summary":"Read an RC522 RFID card or tag.","concepts":["SPI","RFID UID"],"source":"RFID Door Lock MIT: main.cpp and README wiring table","covered":true},
   {"week":23,"title":"Green Light, Red Light","summary":"Give access feedback after an RFID card check.","concepts":["allow list","status feedback"],"source":"RFID Door Lock MIT: main.cpp","covered":true},
-  {"week":24,"title":"The Access System","summary":"Show an authorized RFID identity on an LCD.","concepts":["data mapping","LCD integration"],"source":"RFID Door Lock MIT: main.cpp; original progressive lesson pending","covered":true},
+  {"week":24,"title":"The Access System","summary":"Show a user-owned RFID tag notice on an LCD in a lab-only simulation.","concepts":["SPI","I2C LCD","status output"],"source":"RFID Door Lock MIT: README wiring tables and main.cpp; original notice-only integration lesson","covered":true},
   {"week":25,"title":"The RFID Door Lock","summary":"Integrate RFID verification, display feedback, and a servo latch.","concepts":["system integration","safe prototype lock"],"source":"RFID Door Lock MIT: main.cpp; original capstone lesson pending","covered":true}
 ]
