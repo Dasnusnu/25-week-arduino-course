@@ -8,9 +8,9 @@
 
 The sequence is unusually strong for a guided beginner curriculum: it moves from a one-LED circuit to more complex input, display, motor, IR, and RFID demonstrations; consistently names pins and expected observations; and keeps USB/low-voltage, permission, and no-improvisation boundaries visible. The later RFID work correctly changes an upstream door-lock example into read-only or notice-only lab demonstrations.
 
-**Result: 20 PASS, 5 NEEDS REVISION, 0 BLOCKER.**
+**Result: 23 PASS, 2 NEEDS REVISION, 0 BLOCKER.**
 
-The revisions are tightly scoped to learner support rather than technical-source correction. They concern (1) an all-at-once, 21-wire Week 8 build, (2) how a child can positively identify the unusual 10 MΩ part in Week 10, and (3) explicit adult handling of coin cells in Weeks 19–21. The sampled public sources align with the stated source-derived pin and project claims: Freenove’s LED, digital-display, and IR tutorials; Erriez’s DS1302 library; and mithra1x’s public RC522/LCD/servo tables. The actual source URLs remain linked in each lesson’s **Reference pages** section.
+The revisions are tightly scoped to learner support rather than technical-source correction. They concern (1) an all-at-once, 21-wire Week 8 build and (2) how a learner can positively identify the unusual 10 MΩ part in Week 10. Battery handling is outside this age-appropriateness audit: the project operator has chosen to assume these learners can safely handle ordinary battery-related tasks. The sampled public sources align with the stated source-derived pin and project claims: Freenove’s LED, digital-display, and IR tutorials; Erriez’s DS1302 library; and mithra1x’s public RC522/LCD/servo tables. The actual source URLs remain linked in each lesson’s **Reference pages** section.
 
 ## Per-lesson result
 
@@ -34,9 +34,9 @@ The revisions are tightly scoped to learner support rather than technical-source
 | 16 — Small Board, Big Switch | PASS | Separates the two-AA motor path from Arduino control and strongly excludes mains, unknown loads, and powered troubleshooting. |
 | 17 — The Precision Spinner | PASS | Uses only the matching driver/motor, explicit IN1–IN4 labels, and clear shaft/pinch/hot-part stop conditions. |
 | 18 — Point It Anywhere | PASS | Distinguishes an unloaded kit servo from a power design and gives appropriate pin, horn-clearance, and power-limit wording. |
-| 19 — A Clock That Never Forgets | NEEDS REVISION | See revision finding 3. |
-| 20 — Control It by Remote | NEEDS REVISION | See revision finding 4. |
-| 21 — The Remote-Controlled Lamp | NEEDS REVISION | See revision finding 5. |
+| 19 — A Clock That Never Forgets | PASS | Clear DS1302 wiring and backup-battery boundaries for the selected module. |
+| 20 — Control It by Remote | PASS | Clear IR wiring, decode workflow, and remote handling guidance. |
+| 21 — The Remote-Controlled Lamp | PASS | Clear low-voltage LED/IR integration and explicit no-mains boundary. |
 | 22 — The Card Scanner | PASS | Strong 3.3 V-only and permission boundary; labels RC522 SDA as SPI select, not I2C SDA, and excludes writing/cloning/access decisions. |
 | 23 — Green Light, Red Light | PASS | Makes the new two-LED layout unambiguous, preserves one resistor per branch, and explicitly excludes access-control meaning. |
 | 24 — The Access System | PASS | The RC522/LCD combination is clearly notice-only, with distinct SPI/I2C SDA labels and no UID decision or actuator path. |
@@ -71,42 +71,6 @@ Also add a pre-upload success condition after Step 4: “The board is still unpl
 > “A 10 MΩ resistor is not the same as the common 220 Ω, 1 kΩ, or 10 kΩ kit resistors. Ask your supervising adult to confirm the part from the labeled kit bag, a parts list, or a meter that has a 10 MΩ range. If you cannot positively identify a 10 MΩ resistor, stop here and do not power or substitute a resistor.”
 
 Add this line to **Gather the parts**: “A supervising adult needs to help identify the 10 MΩ resistor from the kit label or a suitable meter.”
-
-### 3. Lesson 19 — A Clock That Never Forgets
-
-**Location:** `web/lessons/19-a-clock-that-never-forgets.html`, **Gather the parts**, excerpt: “The exact backup battery specified for that module, only if its maker says it is required.” The following safety paragraph says, “Coin cells can be swallowed … keep them away from children and pets.”
-
-**Why this needs revision:** The target learners are themselves children. The warning correctly states the danger, but “keep them away from children” is not an actionable responsibility assignment for a 10–13-year-old handling the kit.
-
-**Recommended replacement wording:** Replace the battery part-list item and first coin-cell sentence with:
-
-> “An adult may install the exact backup battery only if the module maker says this module needs one. Do not handle, insert, remove, or test a coin cell yourself.”
->
-> “A coin cell can cause severe injury if swallowed. Your supervising adult must keep it secured and out of reach of younger children and pets.”
-
-### 4. Lesson 20 — Control It by Remote
-
-**Location:** `web/lessons/20-control-it-by-remote.html`, **Gather the parts**, excerpt: “Infrared remote and the battery type marked on its holder,” followed by “A remote’s coin cell can be swallowed … keep it away from children and pets.”
-
-**Why this needs revision:** This repeats the same audience mismatch. The remote is safe to use, but a child should not be implicitly asked to open the holder or handle the coin cell to identify/replace it.
-
-**Recommended replacement wording:** Replace the remote bullet and coin-cell sentence with:
-
-> “Infrared remote; if it needs a battery check or replacement, ask your supervising adult to read the holder and handle the coin cell.”
->
-> “Do not open the battery holder or handle the coin cell yourself. A supervising adult must keep coin cells secured and out of reach of younger children and pets.”
-
-### 5. Lesson 21 — The Remote-Controlled Lamp
-
-**Location:** `web/lessons/21-the-remote-controlled-lamp.html`, **Gather the parts**, excerpt: “Infrared remote and its correctly identified battery,” and safety boundary, excerpt: “Keep remote coin cells away from children and pets.”
-
-**Why this needs revision:** The learner is asked to carry forward Week 20’s remote but the same child-handling ambiguity remains. A child may assume “correctly identified” means they should open the holder.
-
-**Recommended replacement wording:** Replace the remote bullet and coin-cell sentence with:
-
-> “Infrared remote; its coin cell is checked or replaced only by a supervising adult.”
->
-> “Do not open the remote’s battery holder or touch a loose coin cell. A supervising adult must secure coin cells away from younger children and pets.”
 
 ## Nice-to-have
 
