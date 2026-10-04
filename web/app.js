@@ -44,6 +44,7 @@ function render() {
       19: '19-a-clock-that-never-forgets.html',
       20: '20-control-it-by-remote.html',
       21: '21-the-remote-controlled-lamp.html',
+      22: '22-the-card-scanner.html',
     };
     if (lessonPages[lesson.week]) {
       const link = node.querySelector('.open-lesson');

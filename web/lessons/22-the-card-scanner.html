@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Week 22 — The Card Scanner</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../lesson.css">
+</head>
+<body>
+  <header>
+    <p class="eyebrow">WEEK 22 · NOTICE, DON’T UNLOCK</p>
+    <h1>The Card Scanner</h1>
+    <p>Read the public ID number from a card or key fob that you own, using an RC522 reader and Arduino Uno.</p>
+    <p><a class="back" href="../">← All lessons</a></p>
+  </header>
+  <main class="lesson-page">
+    <section class="lesson-summary" aria-labelledby="goal-heading">
+      <div><h2 id="goal-heading">Your goal</h2><p>Wire the RC522 by SPI, then print the UID of a user-owned or lab RFID tag in Serial Monitor. This is an observation-only scanner: it does not unlock, control, copy, write, or change any tag.</p></div>
+      <aside><strong>Time:</strong> 35–50 min<br><strong>Difficulty:</strong> careful SPI labels<br><strong>Output:</strong> a UID in Serial Monitor</aside>
+    </section>
+
+    <section aria-labelledby="parts-heading">
+      <h2 id="parts-heading">Gather the parts</h2>
+      <ul class="parts"><li>Uno-compatible board and USB cable</li><li>RC522 / MFRC522 RFID reader breakout with its antenna board</li><li>One RFID card or key fob that you own or are explicitly authorized to use in a lab</li><li>Breadboard and seven male-to-male jumper wires</li></ul>
+      <p><strong>Safety and permission boundary:</strong> unplug USB before moving wires. Power the RC522 from <strong>3.3 V only</strong>, exactly as its label and the reference wiring table show—do not connect it to 5 V. Do not touch the antenna with loose metal while powered, force connectors, or continue if a part gets hot, is damaged, or smells unusual. A UID is an identifier, not a secret password and not proof that a card is authorized. Scan only user-owned or lab RFID tags with clear permission. <strong>Do not use this lesson to clone, write, alter, bypass, unlock, or test access cards, transit cards, school/work badges, hotel keys, payment cards, or any other tag you do not own and control.</strong></p>
+    </section>
+
+    <section class="steps" aria-labelledby="steps-heading">
+      <h2 id="steps-heading">Build it, one check at a time</h2>
+      <article class="step"><h3>Step 1 — Read the source table, then find your labels</h3><p>The RC522 uses the Arduino Uno’s hardware SPI pins. On many RC522 breakouts the chip-select label says <strong>SDA</strong>; in this lesson it means the SPI select pin, not the Uno’s I²C SDA pin. Find the printed labels on your own module before wiring. Leave the IRQ pin unconnected for this read-only sketch.</p><figure><img src="../assets/lesson-22/lesson-22-mit-rfid-wiring-table.png" alt="Unchanged public GitHub screenshot of the MIT RFID-Based Smart Door Lock System repository page, identifying the project, its MIT license, and RC522 RFID module context."><figcaption>Reference image: an <strong>unchanged</strong> capture of the public <em>RFID-Based Smart Door Lock System</em> repository by mithra1x. Its nearby README wiring table is the source for the RC522-to-Uno connections used below. The repository is under the <a href="https://github.com/mithra1x/RFID-based-Smart-Door-Lock-System/blob/main/LICENSE">MIT License</a>; attribution, source page, and the actual wiring table are linked in <a href="#source-heading">Reference pages</a>. This lesson does not build the source project’s servo or LCD door-lock portions.</figcaption></figure><label><input type="checkbox" data-step="1"> USB is unplugged; I located RC522 labels, understand that SDA means SPI select here, and will use only an authorized tag.</label></article>
+
+      <article class="step"><h3>Step 2 — Make the seven reader connections</h3><p>With USB still unplugged, wire the exact RC522/SPI portion of the retained MIT reference. Read each label rather than guessing from the position of a header pin:</p><ul><li><strong>RC522 3.3V → Arduino 3.3V</strong></li><li><strong>RC522 GND → Arduino GND</strong></li><li><strong>RC522 SDA (SS) → Arduino D10</strong></li><li><strong>RC522 SCK → Arduino D13</strong></li><li><strong>RC522 MOSI → Arduino D11</strong></li><li><strong>RC522 MISO → Arduino D12</strong></li><li><strong>RC522 RST → Arduino D9</strong></li></ul><p>Do not add the retained project’s servo, LCD, or any lock hardware in Week 22. If your board is not Uno-compatible, do not assume these SPI pins apply; use that board’s documented SPI pinout and stop here until you can verify it.</p><label><input type="checkbox" data-step="2"> I traced all seven labeled connections, including 3.3 V—not 5 V—and left IRQ, servo, LCD, and lock hardware out.</label></article>
+
+      <article class="step"><h3>Step 3 — Install one library</h3><p>In Arduino IDE, open Library Manager and install <strong>MFRC522</strong> by GithubCommunity. The maintained public MFRC522 library documents the SPI reader workflow and its “DumpInfo” example; this original, smaller sketch only detects a new card and displays its UID. It does not authenticate to blocks, read card memory, write card memory, or issue an access decision.</p><label><input type="checkbox" data-step="3"> I installed MFRC522 by GithubCommunity and understand this sketch only reports a UID from my own/lab tag.</label></article>
+
+      <article class="step"><h3>Step 4 — Upload the read-only UID viewer</h3><p>Reconnect USB, select your board and port, upload this original teaching sketch, then open Serial Monitor at <strong>9600 baud</strong>. The `PICC_IsNewCardPresent()` and `PICC_ReadCardSerial()` checks prevent output until a nearby tag is detected. The loop prints the UID bytes in hexadecimal, then sends the tag a halt command so the next presentation can be noticed. It contains no write, clone, access-control, servo, or relay code.</p><pre><code>#include &lt;SPI.h&gt;
+#include &lt;MFRC522.h&gt;
+
+const byte ssPin = 10;
+const byte resetPin = 9;
+MFRC522 rfid(ssPin, resetPin);
+
+void setup() {
+  Serial.begin(9600);
+  SPI.begin();
+  rfid.PCD_Init();
+  Serial.println(F("Present your own or lab RFID tag."));
+}
+
+void loop() {
+  if (!rfid.PICC_IsNewCardPresent()) return;
+  if (!rfid.PICC_ReadCardSerial()) return;
+
+  Serial.print(F("UID:"));
+  for (byte i = 0; i &lt; rfid.uid.size; i++) {
+    if (rfid.uid.uidByte[i] &lt; 0x10) Serial.print('0');
+    Serial.print(rfid.uid.uidByte[i], HEX);
+  }
+  Serial.println();
+  rfid.PICC_HaltA();
+}</code></pre><label><input type="checkbox" data-step="4"> I uploaded the read-only sketch and set Serial Monitor to 9600 baud.</label></article>
+
+      <article class="step"><h3>Step 5 — Scan only your practice tag</h3><p>Hold your authorized card or fob flat and close to the reader antenna for a moment. You should see `UID:` followed by hexadecimal characters. The exact UID length and digits vary by tag; do not publish someone else’s UID. If nothing prints, unplug USB before checking 3.3 V, GND, SDA/D10, SCK/D13, MOSI/D11, MISO/D12, RST/D9, library installation, and your board selection. Try the library’s documented diagnostic example only with your own/lab tag. A UID read is not a dependable security check, so do not use it to protect a real door or decide access.</p><label><input type="checkbox" data-step="5"> I observed a UID from my own/lab tag, or safely inspected the unplugged wiring and code against the references.</label></article>
+    </section>
+
+    <section class="challenge" aria-labelledby="challenge-heading"><h2 id="challenge-heading">Tiny challenge</h2><p>Add a counter that prints `scan #` before each UID. Test it only with your own/lab tag, then explain why counting scans is different from deciding who may enter somewhere.</p></section>
+    <section class="lesson-complete" aria-live="polite"><h2>Progress</h2><p id="progress-text">0 of 5 checks complete.</p><progress id="progress" value="0" max="5">0%</progress><button id="reset-progress" type="button">Reset this lesson’s checks</button></section>
+    <section class="sources" aria-labelledby="source-heading"><h2 id="source-heading">Reference pages</h2><ul><li><a href="https://github.com/mithra1x/RFID-based-Smart-Door-Lock-System">RFID-Based Smart Door Lock System — public README: exact RC522/Uno table (SDA D10, SCK D13, MOSI D11, MISO D12, RST D9, GND, 3.3 V), project context, and MIT license</a></li><li><a href="https://github.com/mithra1x/RFID-based-Smart-Door-Lock-System/blob/main/main.cpp">RFID-Based Smart Door Lock System main.cpp — `SPI.begin()`, `PCD_Init()`, new-card/read-serial flow, UID-byte display, and halt call; later lock/LCD code deliberately excluded</a></li><li><a href="https://github.com/mithra1x/RFID-based-Smart-Door-Lock-System/blob/main/LICENSE">RFID-Based Smart Door Lock System MIT License — reuse terms for the attributed reference capture</a></li><li><a href="https://github.com/miguelbalboa/rfid">MFRC522 Arduino library — SPI-based MFRC522 library, supported reader workflow, library-manager availability, limitations, and Unlicense terms</a></li><li><a href="https://github.com/miguelbalboa/rfid/blob/master/examples/DumpInfo/DumpInfo.ino">MFRC522 DumpInfo example — documented `PICC_IsNewCardPresent()`, `PICC_ReadCardSerial()`, UID access, and `PICC_HaltA()` flow</a></li></ul><p>The reference capture is unchanged and visibly attributed to mithra1x’s MIT-licensed repository. The learner-facing instructions and small read-only teaching sketch are original. No physical hardware was tested for this lesson.</p></section>
+  </main>
+  <script src="../lesson.js"></script>
+</body>
+</html>
