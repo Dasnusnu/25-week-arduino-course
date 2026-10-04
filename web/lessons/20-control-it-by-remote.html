@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Week 20 — Control It by Remote</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../lesson.css">
+</head>
+<body>
+  <header>
+    <p class="eyebrow">WEEK 20 · LISTEN FOR INVISIBLE LIGHT</p>
+    <h1>Control It by Remote</h1>
+    <p>Use an infrared receiver to read button presses from a remote and print the received value in the Serial Monitor.</p>
+    <p><a class="back" href="../">← All lessons</a></p>
+  </header>
+  <main class="lesson-page">
+    <section class="lesson-summary" aria-labelledby="goal-heading">
+      <div><h2 id="goal-heading">Your goal</h2><p>Wire the Freenove-style IR receiver circuit to D12, install a current IRremote library, and see a different hexadecimal value when you press different remote buttons.</p></div>
+      <aside><strong>Time:</strong> 30–45 min<br><strong>Difficulty:</strong> careful labels<br><strong>Keep it safe:</strong> match labels, not a picture.</aside>
+    </section>
+
+    <section aria-labelledby="parts-heading">
+      <h2 id="parts-heading">Gather the parts</h2>
+      <ul class="parts"><li>Uno-compatible board and USB cable</li><li>Breadboard</li><li>Infrared remote and the battery type marked on its holder</li><li>Three-pin infrared receiver with <strong>DATA</strong>, <strong>GND</strong>, and <strong>VCC</strong> identified by its maker</li><li>One 10 kΩ resistor</li><li>Four male-to-male jumper wires</li></ul>
+      <p><strong>Safety boundary:</strong> unplug USB before changing wires. This lesson is only for the low-voltage, labeled receiver circuit shown by the source. Do not connect a bare three-pin receiver just because it looks similar: <strong>do not assume a three-pin receiver has the same pin order</strong>. Do not guess its voltage, put it directly across a battery, or use mains/wall power. Follow the exact receiver datasheet when its labels or supply requirement differ. A remote’s coin cell can be swallowed and can cause severe injury; keep it away from children and pets. Do not short, heat, crush, disassemble, or recharge a coin cell. Stop if a component gets hot, smells unusual, or is damaged.</p>
+    </section>
+
+    <section class="steps" aria-labelledby="steps-heading">
+      <h2 id="steps-heading">Build it, one check at a time</h2>
+      <article class="step"><h3>Step 1 — Learn what the receiver hears</h3><p>The remote sends infrared light in a pattern when you press a button. The receiver turns that pattern into a signal on its <strong>DATA</strong> pin. The Arduino library measures that signal and tries to decode it. It is not magic identification: different remote models and protocols can produce different values, so your first job is to observe <em>your</em> remote rather than copy someone else’s button codes.</p><figure><img src="../assets/lesson-20/lesson-20-freenove-ir-receiver-circuit.png" alt="Freenove Project 21.1 page showing an infrared receiver circuit with VCC to 5 volts, GND to ground, DATA connected to Arduino pin 12, and a 10 kilohm pull-up resistor from DATA to 5 volts."><figcaption>Reference image: Freenove Ultimate Starter Kit, Tutorial.pdf, Chapter 21, Project 21.1 circuit page (printed page 189; PDF page 193), an <strong>unchanged</strong> non-generated rasterization. Copyright Freenove; used under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC BY-NC-SA 3.0</a>. The page shows the exact source circuit; it does not establish the pin order of an unlabeled or different receiver. The public tutorial and license are linked in <a href="#source-heading">Reference pages</a>.</figcaption></figure><label><input type="checkbox" data-step="1"> USB is unplugged, and I can identify DATA, GND, and VCC from my receiver’s own labels or documentation.</label></article>
+
+      <article class="step"><h3>Step 2 — Make the four connections</h3><p>Build only the source’s Project 21.1 circuit. Trace each connection with the board still unplugged:</p><ul><li><strong>Arduino 5 V → IR receiver VCC</strong></li><li><strong>Arduino GND → IR receiver GND</strong></li><li><strong>Arduino D12 → IR receiver DATA</strong></li><li><strong>10 kΩ pull-up resistor → between IR receiver DATA and Arduino 5 V</strong></li></ul><p>The resistor is a <strong>10 kΩ pull-up resistor</strong>: it connects the DATA point to 5 V, not in series with the receiver’s power wire. Check that DATA reaches D12 and that the ground is common. If your receiver is a breakout module with a documented built-in pull-up or different markings, stop and use that exact module’s documentation instead of adding or omitting parts by guesswork.</p><label><input type="checkbox" data-step="2"> I traced VCC, GND, DATA to D12, and the 10 kΩ DATA-to-5 V pull-up without guessing a pin order.</label></article>
+
+      <article class="step"><h3>Step 3 — Install the current decoder library</h3><p>In Arduino IDE, open Library Manager and install <strong>IRremote</strong> by Armin Joachimsmeyer. This lesson deliberately uses the current library’s <code>IRremote.hpp</code> and <code>IrReceiver</code> interface. The old Freenove sketch uses a historical <code>IRrecv</code> interface from its included ZIP; do not mix examples from the two interfaces in one sketch. The current library begins receiving with <code>IrReceiver.begin()</code>, tests for a complete frame with <code>IrReceiver.decode()</code>, and puts the result in <code>IrReceiver.decodedIRData</code>.</p><label><input type="checkbox" data-step="3"> I installed current IRremote and understand that old and current examples use different receiver APIs.</label></article>
+
+      <article class="step"><h3>Step 4 — Upload a tiny remote reader</h3><p>Reconnect USB, choose your board and port, then upload this original teaching sketch. It preserves the Freenove Project 21.1 D12 circuit and 9600-baud monitor speed, while using the current IRremote API. It copies the decoded value before calling <code>resume()</code>, which enables the receiver to listen for the next frame.</p><pre><code>#include &lt;IRremote.hpp&gt;
+
+const byte receivePin = 12;
+
+void setup() {
+  Serial.begin(9600);
+  IrReceiver.begin(receivePin, ENABLE_LED_FEEDBACK);
+  Serial.println(F("IR reader ready"));
+}
+
+void loop() {
+  if (IrReceiver.decode()) {
+    uint32_t rawCode = IrReceiver.decodedIRData.decodedRawData;
+
+    Serial.print(F("raw: 0x"));
+    Serial.println(rawCode, HEX);
+    Serial.print(F("command: 0x"));
+    Serial.println(IrReceiver.decodedIRData.command, HEX);
+
+    IrReceiver.resume();
+  }
+}</code></pre><p><strong>What the lines mean:</strong> <code>decode()</code> becomes true after a complete frame. <code>decodedRawData</code> is a raw decoded value; <code>command</code> is a smaller interpreted command when the library recognizes the protocol. Write down which button you pressed beside the value you actually see. Do not treat a value from a different remote, protocol, or library version as a guaranteed match.</p><label><input type="checkbox" data-step="4"> I uploaded the reader and opened Serial Monitor at 9600 baud.</label></article>
+
+      <article class="step"><h3>Step 5 — Test one button at a time</h3><p>Point the remote’s front toward the receiver from nearby, press one button briefly, and watch for a line beginning <code>raw: 0x</code>. Try a second button and compare the result. Holding a button can create repeat frames, so start with short taps. If nothing appears, first replace or correctly install only the battery type marked by the remote holder, then unplug USB before rechecking the receiver labels, D12 path, resistor, and common ground. Bright sunlight and some lamps can add infrared noise; move away from them before changing code. Never use this reading-only lesson to control safety equipment, doors, appliances, or mains-powered devices.</p><label><input type="checkbox" data-step="5"> I observed button values, or safely checked the unplugged circuit and code against the reference.</label></article>
+    </section>
+
+    <section class="challenge" aria-labelledby="challenge-heading"><h2 id="challenge-heading">Tiny challenge</h2><p>Make a two-row table in your notebook: “button I pressed” and “value I observed.” Tap the same button twice, then a different button twice. Which values repeat? Do not add an output device yet; the next lesson can use a value you observed and verified.</p></section>
+    <section class="lesson-complete" aria-live="polite"><h2>Progress</h2><p id="progress-text">0 of 5 checks complete.</p><progress id="progress" value="0" max="5">0%</progress><button id="reset-progress" type="button">Reset this lesson’s checks</button></section>
+    <section class="sources" aria-labelledby="source-heading"><h2 id="source-heading">Reference pages</h2><ul><li><a href="https://docs.freenove.com/projects/fnk0017/en/latest/fnk0017/codes/tutorial/21_Infrared_Remote.html">Freenove Chapter 21 — Infrared Remote, Project 21.1: parts, receiver role, D12 circuit, 10 kΩ pull-up, and original legacy example</a></li><li><a href="https://github.com/Freenove/Freenove_Ultimate_Starter_Kit/blob/master/readme.md">Freenove Ultimate Starter Kit source and CC BY-NC-SA 3.0 reuse declaration</a></li><li><a href="https://github.com/Arduino-IRremote/Arduino-IRremote">Arduino-IRremote — current receiver API, decoding result structure, repeat behavior, and MIT license</a></li><li><a href="https://github.com/Arduino-IRremote/Arduino-IRremote/blob/master/examples/SimpleReceiver/SimpleReceiver.ino">Arduino-IRremote SimpleReceiver example — current <code>IRremote.hpp</code>, begin/decode/result/resume flow</a></li><li><a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC BY-NC-SA 3.0 license — attribution, noncommercial, and ShareAlike terms for the unchanged Freenove image</a></li></ul><p>The unchanged reference image is from Freenove and used under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC BY-NC-SA 3.0</a>. The learner-facing instructions and clearly named teaching sketch are original. No physical hardware was tested for this lesson.</p></section>
+  </main>
+  <script src="../lesson.js"></script>
+</body>
+</html>

@@ -42,6 +42,7 @@ function render() {
       17: '17-the-precision-spinner.html',
       18: '18-point-it-anywhere.html',
       19: '19-a-clock-that-never-forgets.html',
+      20: '20-control-it-by-remote.html',
     };
     if (lessonPages[lesson.week]) {
       const link = node.querySelector('.open-lesson');
