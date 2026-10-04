@@ -8,7 +8,7 @@ class Lesson08ContractTest(unittest.TestCase):
     def test_lesson_page_has_four_digit_counter_build_and_references(self):
         page = ROOT / "web" / "lessons" / "08-the-counting-machine.html"
         self.assertTrue(page.exists(), "Lesson 08 page is missing")
-        content = page.read_text(encoding="utf-8")
+        content = page.read_text(encoding="utf-8").replace("<code>", "`").replace("</code>", "`")
         for required in (
             "The Counting Machine",
             "4-digit 7-segment",
@@ -22,6 +22,11 @@ class Lesson08ContractTest(unittest.TestCase):
             "writeData(digits[digit])",
             "writeData(0xff)",
             "elapsedSeconds % 10000UL",
+            "Make one shared segment route at a time",
+            "ask your supervising adult to compare the eight source labels and resistor positions",
+            "Keep a paper checklist of `Q0–Q7` and `D7–D4`",
+            "every display route has one resistor",
+            "no display leg is being identified only by its physical position",
             "Reference pages",
             "17_Digital_Display.html",
             "lesson-08-four-digit-seven-segment-circuit.jpg",

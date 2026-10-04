@@ -21,6 +21,8 @@ class Lesson10ContractTest(unittest.TestCase):
             "water_sensor.onRawValueChange()",
             "water_sensor.getActiveLevel()",
             "water_sensor.getRawValue()",
+            "A supervising adult needs to help identify the 10 MΩ resistor",
+            "If you cannot positively identify a 10 MΩ resistor, stop here and do not power or substitute a resistor.",
             "Reference pages",
             "docs-arduino-water-sensor.html",
             "data-step=\"5\"",

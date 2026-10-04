@@ -8,9 +8,9 @@
 
 The sequence is unusually strong for a guided beginner curriculum: it moves from a one-LED circuit to more complex input, display, motor, IR, and RFID demonstrations; consistently names pins and expected observations; and keeps USB/low-voltage, permission, and no-improvisation boundaries visible. The later RFID work correctly changes an upstream door-lock example into read-only or notice-only lab demonstrations.
 
-**Result: 23 PASS, 2 NEEDS REVISION, 0 BLOCKER.**
+**Result: 25 PASS, 0 NEEDS REVISION, 0 BLOCKER.**
 
-The revisions are tightly scoped to learner support rather than technical-source correction. They concern (1) an all-at-once, 21-wire Week 8 build and (2) how a learner can positively identify the unusual 10 MΩ part in Week 10. Battery handling is outside this age-appropriateness audit: the project operator has chosen to assume these learners can safely handle ordinary battery-related tasks. The sampled public sources align with the stated source-derived pin and project claims: Freenove’s LED, digital-display, and IR tutorials; Erriez’s DS1302 library; and mithra1x’s public RC522/LCD/servo tables. The actual source URLs remain linked in each lesson’s **Reference pages** section.
+The two learner-support revisions identified in the first audit pass are resolved: Week 08 now requires unplugged, route-by-route Q0–Q7/D7–D4 checking with adult comparison, and Week 10 gives an adult-assisted 10 MΩ identification and no-substitution stop condition. These changes are recorded in the focused commit `fix: clarify guided wiring checks for lessons 08 and 10`. Battery handling is outside this age-appropriateness audit: the project operator has chosen to assume these learners can safely handle ordinary battery-related tasks. The sampled public sources align with the stated source-derived pin and project claims: Freenove’s LED, digital-display, and IR tutorials; Erriez’s DS1302 library; and mithra1x’s public RC522/LCD/servo tables. The actual source URLs remain linked in each lesson’s **Reference pages** section.
 
 ## Per-lesson result
 
@@ -23,9 +23,9 @@ The revisions are tightly scoped to learner support rather than technical-source
 | 05 — The Darkness Detector | PASS | The sensor junction is explicitly traced; LED safety and light-testing guidance are clear. |
 | 06 — Mix Your Own Colours | PASS | Correctly stops a learner with a common-cathode or unknown RGB LED and keeps each LED path independently protected. |
 | 07 — Make Numbers Appear | PASS | Dense but suitable with supervision: it names every 74HC595 control/power pin, requires the source-specific display map, and gives a safe unplug-first fault path. |
-| 08 — The Counting Machine | NEEDS REVISION | See revision finding 1. |
+| 08 — The Counting Machine | PASS | Unplugged, route-by-route Q0–Q7 and D7–D4 checklist, adult label/resistor comparison, and pre-power success condition remove the high-density-wiring guess path. |
 | 09 — The Room Thermometer | PASS | Correctly separates bare four-pin DHT11 from three-pin modules, gives face-forward pin identification, and defines useful error output. |
-| 10 — The Water Detector | NEEDS REVISION | See revision finding 2. |
+| 10 — The Water Detector | PASS | Parts list and wiring step require adult positive identification of 10 MΩ and a no-power/no-substitution stop condition when it cannot be identified. |
 | 11 — Words on a Real Screen | PASS | Clearly distinguishes the four-pin I2C backpack from a bare LCD and explains A4/A5 versus duplicate SDA/SCL pins. |
 | 12 — The Secret Password Pad | PASS | Explicitly frames the build as a password game, not security; the unloaded-servo and no-door boundaries are age-appropriate. |
 | 13 — The Game-Style Joystick | PASS | Labels the five-module-pin prerequisite, calibrates the starting point, and makes reversed directions a code-label issue rather than a rewiring guess. |
@@ -46,13 +46,13 @@ The revisions are tightly scoped to learner support rather than technical-source
 
 None found. No reviewed lesson directs a learner toward mains power, an unknown voltage, an unprotected LED, direct motor/relay drive from an Arduino pin, or real access-control use. The high-risk topics have explicit stop conditions and exclusions.
 
-## Needs revision
+## Resolved findings
 
-### 1. Lesson 08 — The Counting Machine
+### 1. Lesson 08 — The Counting Machine — RESOLVED
 
 **Location:** `web/lessons/08-the-counting-machine.html`, Step 3, excerpt: “Then follow the source image exactly from the 74HC595’s Q0–Q7 outputs to the display’s eight shared cathode/segment paths.” Step 4 immediately adds four digit-select wires, and the parts list specifies 21 jumpers.
 
-**Why this needs revision:** This is the course’s first high-density wiring task. A guided child can follow the map, but the lesson asks for twelve display-related connections across two long steps and offers no intermediate, visible check until after the full sketch is uploaded. A single crossed wire can make the final symptom look like a code problem, which encourages guessing.
+**Resolution:** The final Step 3 guidance now has the learner build and mark one Q0–Q7 route at a time, then compare all eight source labels and resistor positions with a supervising adult while USB remains unplugged. Step 4 adds the Q0–Q7/D7–D4 paper checklist and requires confirmation that every display route has one resistor and no leg was identified only by physical position. Focused contract and browser checks passed; evidence is the focused commit `fix: clarify guided wiring checks for lessons 08 and 10`.
 
 **Recommended replacement wording:** Replace the final two sentences of Step 3 and the first sentence of Step 4 with:
 
@@ -60,11 +60,11 @@ None found. No reviewed lesson directs a learner toward mains power, an unknown 
 
 Also add a pre-upload success condition after Step 4: “The board is still unplugged; every display route has one resistor; and no display leg is being identified only by its physical position.”
 
-### 2. Lesson 10 — The Water Detector
+### 2. Lesson 10 — The Water Detector — RESOLVED
 
 **Location:** `web/lessons/10-the-water-detector.html`, Step 3, excerpt: “use the resistor’s markings or a meter rather than guessing by color alone.”
 
-**Why this needs revision:** A 10 MΩ resistor is uncommon in beginner kits and ordinary color bands are difficult for this age group to read reliably. “A meter” is an undeclared tool and not all inexpensive meters can confirm a 10 MΩ part accurately. The current instruction correctly says not to guess but does not give the child a supported stop-and-get-help route.
+**Resolution:** The parts list now requires supervising-adult assistance to identify the 10 MΩ resistor from a labeled kit bag or suitable meter. Step 3 explains that it differs from common 220 Ω, 1 kΩ, and 10 kΩ parts, gives the supported confirmation paths, and says to stop without power or substitution if it cannot be positively identified. Focused contract and browser checks passed; evidence is the focused commit `fix: clarify guided wiring checks for lessons 08 and 10`.
 
 **Recommended replacement wording:** Replace the last sentence with:
 
