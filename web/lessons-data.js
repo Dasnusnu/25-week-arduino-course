@@ -1,0 +1,281 @@
+// Generated from data/lessons.json by tools/build_offline_package.py.
+// Do not edit by hand; rerun this script after inventory changes.
+window.LESSONS_DATA = [
+  {
+    "week": 1,
+    "title": "Light Your First LED",
+    "summary": "Use a button, resistor, and LED to make a first low-voltage circuit.",
+    "concepts": [
+      "polarity",
+      "digital output",
+      "current limiting"
+    ],
+    "source": "Freenove Tutorial.pdf: Ch. 1 and Ch. 5",
+    "covered": true
+  },
+  {
+    "week": 2,
+    "title": "Make Some Noise",
+    "summary": "Drive an active buzzer from a digital pin.",
+    "concepts": [
+      "digital output",
+      "buzzer"
+    ],
+    "source": "Freenove Tutorial.pdf: Ch. 9",
+    "covered": true
+  },
+  {
+    "week": 3,
+    "title": "The Melody Machine",
+    "summary": "Generate pitches with a passive buzzer.",
+    "concepts": [
+      "frequency",
+      "tone timing"
+    ],
+    "source": "Freenove Tutorial.pdf: Ch. 9",
+    "covered": true
+  },
+  {
+    "week": 4,
+    "title": "The Control Knob",
+    "summary": "Read a potentiometer as an analog input.",
+    "concepts": [
+      "ADC",
+      "mapping"
+    ],
+    "source": "Freenove Tutorial.pdf: Ch. 7",
+    "covered": true
+  },
+  {
+    "week": 5,
+    "title": "The Darkness Detector",
+    "summary": "Use a light-dependent resistor to measure ambient light.",
+    "concepts": [
+      "voltage divider",
+      "analog sensing"
+    ],
+    "source": "Freenove Tutorial.pdf: Ch. 7, Project 7.3",
+    "covered": true
+  },
+  {
+    "week": 6,
+    "title": "Mix Your Own Colours",
+    "summary": "Control an RGB LED using PWM.",
+    "concepts": [
+      "PWM",
+      "RGB mixing"
+    ],
+    "source": "Freenove Tutorial.pdf: Ch. 8",
+    "covered": true
+  },
+  {
+    "week": 7,
+    "title": "Make Numbers Appear",
+    "summary": "Drive a one-digit seven-segment display.",
+    "concepts": [
+      "segments",
+      "pin mapping"
+    ],
+    "source": "Freenove Tutorial.pdf: Ch. 17",
+    "covered": true
+  },
+  {
+    "week": 8,
+    "title": "The Counting Machine",
+    "summary": "Drive a four-digit seven-segment display.",
+    "concepts": [
+      "multiplexing",
+      "display refresh"
+    ],
+    "source": "Freenove Tutorial.pdf: Ch. 17",
+    "covered": true
+  },
+  {
+    "week": 9,
+    "title": "The Room Thermometer",
+    "summary": "Read temperature and humidity from a DHT sensor.",
+    "concepts": [
+      "sensor library",
+      "serial output"
+    ],
+    "source": "Freenove Tutorial.pdf: Ch. 22",
+    "covered": true
+  },
+  {
+    "week": 10,
+    "title": "The Water Detector",
+    "summary": "Read a water-level sensor safely at low voltage.",
+    "concepts": [
+      "analog sensing",
+      "corrosion awareness"
+    ],
+    "source": "RBD_WaterSensor MIT: examples/calibrate_water_sensor",
+    "covered": true
+  },
+  {
+    "week": 11,
+    "title": "Words on a Real Screen",
+    "summary": "Print text to an LCD1602 display.",
+    "concepts": [
+      "LCD",
+      "text output"
+    ],
+    "source": "Freenove Tutorial.pdf: Ch. 16",
+    "covered": true
+  },
+  {
+    "week": 12,
+    "title": "The Secret Password Pad",
+    "summary": "Read a 4×4 keypad and compare an entered code.",
+    "concepts": [
+      "matrix scanning",
+      "state"
+    ],
+    "source": "Freenove Tutorial.pdf: Ch. 19",
+    "covered": true
+  },
+  {
+    "week": 13,
+    "title": "The Game-Style Joystick",
+    "summary": "Read dual-axis joystick positions and its button.",
+    "concepts": [
+      "two-axis ADC",
+      "dead zone"
+    ],
+    "source": "Freenove Tutorial.pdf: Ch. 13",
+    "covered": true
+  },
+  {
+    "week": 14,
+    "title": "The Clap Trigger",
+    "summary": "Detect a sound threshold and trigger an action.",
+    "concepts": [
+      "threshold",
+      "noise handling"
+    ],
+    "source": "Luis Llamas CC BY-NC-SA: KY-038 digital threshold input",
+    "covered": true
+  },
+  {
+    "week": 15,
+    "title": "More Lights Than Pins",
+    "summary": "Use a 74HC595 shift register to extend output pins.",
+    "concepts": [
+      "shift register",
+      "serial data"
+    ],
+    "source": "Freenove Tutorial.pdf: Ch. 15",
+    "covered": true
+  },
+  {
+    "week": 16,
+    "title": "Small Board, Big Switch",
+    "summary": "Use a relay module to control a low-voltage external load.",
+    "concepts": [
+      "relay isolation",
+      "load safety"
+    ],
+    "source": "Freenove Tutorial.pdf: Ch. 10",
+    "covered": true
+  },
+  {
+    "week": 17,
+    "title": "The Precision Spinner",
+    "summary": "Move a stepper motor in controlled increments.",
+    "concepts": [
+      "step sequences",
+      "motor driver"
+    ],
+    "source": "Freenove Tutorial.pdf: Ch. 18",
+    "covered": true
+  },
+  {
+    "week": 18,
+    "title": "Point It Anywhere",
+    "summary": "Set a hobby servo to precise angles.",
+    "concepts": [
+      "servo pulse",
+      "angle mapping"
+    ],
+    "source": "Freenove Tutorial.pdf: Ch. 11",
+    "covered": true
+  },
+  {
+    "week": 19,
+    "title": "A Clock That Never Forgets",
+    "summary": "Read time from a DS1302 real-time-clock module.",
+    "concepts": [
+      "RTC",
+      "timekeeping"
+    ],
+    "source": "ErriezDS1302 MIT: examples/ErriezDS1302SetGetDateTime",
+    "covered": true
+  },
+  {
+    "week": 20,
+    "title": "Control It by Remote",
+    "summary": "Decode infrared remote-control input.",
+    "concepts": [
+      "IR receiver",
+      "remote codes"
+    ],
+    "source": "Freenove Tutorial.pdf: Ch. 21",
+    "covered": true
+  },
+  {
+    "week": 21,
+    "title": "The Remote-Controlled Lamp",
+    "summary": "Combine IR input and an LED output into one device.",
+    "concepts": [
+      "event control",
+      "integration"
+    ],
+    "source": "Freenove Tutorial.pdf: Ch. 21; original integration lesson pending",
+    "covered": true
+  },
+  {
+    "week": 22,
+    "title": "The Card Scanner",
+    "summary": "Read an RC522 RFID card or tag.",
+    "concepts": [
+      "SPI",
+      "RFID UID"
+    ],
+    "source": "RFID Door Lock MIT: main.cpp and README wiring table",
+    "covered": true
+  },
+  {
+    "week": 23,
+    "title": "Green Light, Red Light",
+    "summary": "Give access feedback after an RFID card check.",
+    "concepts": [
+      "allow list",
+      "status feedback"
+    ],
+    "source": "RFID Door Lock MIT: main.cpp",
+    "covered": true
+  },
+  {
+    "week": 24,
+    "title": "The Access System",
+    "summary": "Show a user-owned RFID tag notice on an LCD in a lab-only simulation.",
+    "concepts": [
+      "SPI",
+      "I2C LCD",
+      "status output"
+    ],
+    "source": "RFID Door Lock MIT: README wiring tables and main.cpp; original notice-only integration lesson",
+    "covered": true
+  },
+  {
+    "week": 25,
+    "title": "The RFID Door Lock",
+    "summary": "Build a tag-notice LCD and paper-pointer bench demonstrator, not a security device.",
+    "concepts": [
+      "system integration",
+      "safe status simulation"
+    ],
+    "source": "RFID Door Lock MIT: README wiring tables and main.cpp; original notice-and-pointer lesson",
+    "covered": true
+  }
+];

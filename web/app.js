@@ -82,10 +82,13 @@ document.querySelector('#search').addEventListener('input', (event) => { state.t
 window.addEventListener('storage', (event) => {
   if (event.key?.startsWith('25week-guide:') && event.key.endsWith(':checks')) render();
 });
-fetch('../data/lessons.json').then((response) => {
-  if (!response.ok) throw new Error(`Could not load curriculum (${response.status})`);
-  return response.json();
-}).then((lessons) => { state.lessons = lessons; render(); }).catch((error) => {
+try {
+  if (!Array.isArray(window.LESSONS_DATA)) {
+    throw new Error('Local lesson data is unavailable. Make sure lessons-data.js is beside this page.');
+  }
+  state.lessons = window.LESSONS_DATA;
+  render();
+} catch (error) {
   grid.textContent = `Curriculum load error: ${error.message}`;
   console.error(error);
-});
+}
