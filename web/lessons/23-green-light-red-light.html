@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Week 23 — Green Light, Red Light</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../lesson.css">
+</head>
+<body>
+  <header>
+    <p class="eyebrow">WEEK 23 · MAKE STATUS EASY TO SEE</p>
+    <h1>Green Light, Red Light</h1>
+    <p>Build two tiny LEDs that make a classroom or lab/demo status easy to notice—without controlling a door, lock, relay, or anyone’s access.</p>
+    <p><a class="back" href="../">← All lessons</a></p>
+  </header>
+  <main class="lesson-page">
+    <section class="lesson-summary" aria-labelledby="goal-heading">
+      <div><h2 id="goal-heading">Your goal</h2><p>Wire a green LED and a red LED to two Arduino output pins. Then use a single Serial Monitor letter to show a practice “ready” or “try again” status. This is a lab/demo status indicator, not an access-control system.</p></div>
+      <aside><strong>Time:</strong> 30–40 min<br><strong>Difficulty:</strong> two LED branches<br><strong>Output:</strong> one clear status light</aside>
+    </section>
+
+    <section aria-labelledby="parts-heading">
+      <h2 id="parts-heading">Gather the parts</h2>
+      <ul class="parts"><li>Uno-compatible board and USB cable</li><li>Breadboard</li><li>One green LED and one red LED</li><li>Two 220 Ω resistors</li><li>Six male-to-male jumper wires</li></ul>
+      <p><strong>Safety and meaning boundary:</strong> unplug USB before moving wires. LEDs have direction and each LED needs its own 220 Ω current-limiting resistor; never share one resistor between the two branches or omit either resistor. This is USB-powered, low-voltage classroom feedback only. Stop if a part is hot, damaged, or smells unusual. <strong>Do not use this lesson to unlock a door, operate a real lock or relay, make access decisions, judge a person, or signal that an RFID card is authorized.</strong> A green or red LED is only a practice message chosen in software—not proof of identity, permission, or safety.</p>
+    </section>
+
+    <section class="steps" aria-labelledby="steps-heading">
+      <h2 id="steps-heading">Build it, one check at a time</h2>
+      <article class="step"><h3>Step 1 — Learn the shape of one safe LED branch</h3><p>An output pin sends a small signal through an LED and a resistor to ground. The Freenove reference below shows that shape with a 220 Ω resistor and one LED. This lesson repeats that same safe pattern twice: once for green and once for red. The picture is a reference for one branch, not a diagram of this lesson’s complete two-LED circuit.</p><figure><img src="../assets/lesson-23/lesson-23-freenove-led-circuit.jpg" alt="Freenove Chapter 1 LED Blink circuit page showing Arduino pin 13, a 220 ohm resistor, one LED, ground, and the matching breadboard connection."><figcaption>Reference image: Freenove Ultimate Starter Kit, Tutorial.pdf, Chapter 1 LED Blink circuit page (printed page 20), an <strong>unchanged</strong> non-generated rasterization. Copyright Freenove; used under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC BY-NC-SA 3.0</a>. It validates the one-LED, 220 Ω-to-ground branch used as the pattern below. The public tutorial, license, and source context are linked in <a href="#source-heading">Reference pages</a>.</figcaption></figure><label><input type="checkbox" data-step="1"> USB is unplugged, and I know each LED gets its own 220 Ω resistor.</label></article>
+
+      <article class="step"><h3>Step 2 — Identify LED direction</h3><p>Find the two leads on each loose LED. Usually the longer lead is the <strong>anode</strong> (positive side) and the flat edge on the rim marks the <strong>cathode</strong> (negative side). Those are helpful clues, not a substitute for checking your part’s documentation. Put the red and green LEDs in separate breadboard rows so their legs do not accidentally touch.</p><label><input type="checkbox" data-step="2"> I identified the anode and cathode of both LEDs and kept their rows separate.</label></article>
+
+      <article class="step"><h3>Step 3 — Wire two independent status branches</h3><p>With USB still unplugged, make these exact connections. The pin choices are intentionally ordinary digital output pins on an Uno-compatible board; they are a new two-LED teaching arrangement based on the reference’s one-LED branch pattern.</p><ul><li><strong>Arduino D5 → green LED anode</strong></li><li><strong>green LED cathode → 220 Ω resistor → Arduino GND</strong></li><li><strong>Arduino D6 → red LED anode</strong></li><li><strong>red LED cathode → 220 Ω resistor → Arduino GND</strong></li></ul><p>A resistor may be on either side of an LED electrically, but keep this order while you are learning to trace the circuit. Both branches may meet at the Arduino GND pin, but do not connect D5 to D6 or join the LED anodes. If an LED is dim, backward, or does not light, unplug USB before inspecting it.</p><label><input type="checkbox" data-step="3"> I traced D5 through the green LED and its 220 Ω resistor to GND, and D6 through the red LED and its own 220 Ω resistor to GND.</label></article>
+
+      <article class="step"><h3>Step 4 — Upload a manual practice-status sketch</h3><p>Reconnect USB, select your board and port, upload this original teaching sketch, then open Serial Monitor at <strong>9600 baud</strong>. Type <code>g</code> to show green (“ready”) or <code>r</code> to show red (“try again”), then send it. The code changes only the LEDs. It reads no RFID tag, stores no UID, checks no allow list, and controls no actuator. We use manual letters so the person at the computer chooses a harmless practice message rather than pretending a card scan proves authorization.</p><pre><code>const byte greenPin = 5;
+const byte redPin = 6;
+
+void showGreen() {
+  digitalWrite(greenPin, HIGH);
+  digitalWrite(redPin, LOW);
+}
+
+void showRed() {
+  digitalWrite(greenPin, LOW);
+  digitalWrite(redPin, HIGH);
+}
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(greenPin, OUTPUT);
+  pinMode(redPin, OUTPUT);
+  showRed();
+  Serial.println(F("Type g for green (ready) or r for red (try again)."));
+}
+
+void loop() {
+  if (Serial.available() &gt; 0) {
+    char choice = Serial.read();
+    if (choice == 'g') {
+      showGreen();
+      Serial.println(F("Green practice status"));
+    } else if (choice == 'r') {
+      showRed();
+      Serial.println(F("Red practice status"));
+    }
+  }
+}</code></pre><label><input type="checkbox" data-step="4"> I uploaded the two-LED sketch, set Serial Monitor to 9600 baud, and understand its letters are manual practice choices—not card authorization.</label></article>
+
+      <article class="step"><h3>Step 5 — Test both messages, then reset safely</h3><p>Send <code>g</code> once and check that only the green LED lights. Send <code>r</code> once and check that only the red LED lights. If both light, neither lights, or the colors are swapped, unplug USB before checking LED direction, D5, D6, both 220 Ω resistors, and the ground paths. When finished, send <code>r</code> or unplug USB. If you later connect this display beside your Week 22 scanner, keep it a visible lab/demo message selected by a supervised activity—never use it to decide entry or move hardware.</p><label><input type="checkbox" data-step="5"> I tested both manual messages, or safely checked the unplugged two-branch wiring against the code and references.</label></article>
+    </section>
+
+    <section class="challenge" aria-labelledby="challenge-heading"><h2 id="challenge-heading">Tiny challenge</h2><p>Add a third Serial Monitor letter, <code>o</code>, that turns both LEDs off. Explain why “off” can be clearer than guessing when a practice activity has not chosen a status yet.</p></section>
+    <section class="lesson-complete" aria-live="polite"><h2>Progress</h2><p id="progress-text">0 of 5 checks complete.</p><progress id="progress" value="0" max="5">0%</progress><button id="reset-progress" type="button">Reset this lesson’s checks</button></section>
+    <section class="sources" aria-labelledby="source-heading"><h2 id="source-heading">Reference pages</h2><ul><li><a href="https://docs.freenove.com/projects/fnk0017/en/latest/fnk0017/codes/tutorial/1_LED_Blink.html">Freenove Chapter 1 — LED Blink: one LED from a digital pin through a 220 Ω resistor to ground, LED output behavior, and troubleshooting context</a></li><li><a href="https://github.com/Freenove/Freenove_Ultimate_Starter_Kit/blob/master/readme.md">Freenove Ultimate Starter Kit source and CC BY-NC-SA 3.0 reuse declaration</a></li><li><a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC BY-NC-SA 3.0 license — attribution, noncommercial, and ShareAlike terms for the unchanged Freenove reference image</a></li><li><a href="https://github.com/mithra1x/RFID-based-Smart-Door-Lock-System/blob/main/main.cpp">RFID-Based Smart Door Lock System main.cpp — source curriculum context for its separate true/false status branch; its RFID, LCD, servo, UID comparison, and access-control behavior are deliberately not reused here</a></li><li><a href="https://github.com/mithra1x/RFID-based-Smart-Door-Lock-System/blob/main/LICENSE">RFID-Based Smart Door Lock System MIT License — source reuse terms for the context reference</a></li></ul><p>The unchanged reference image is from Freenove and used under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC BY-NC-SA 3.0</a>. The learner-facing instructions, two-LED arrangement, and manual practice-status sketch are original. No physical hardware was tested for this lesson.</p></section>
+  </main>
+  <script src="../lesson.js"></script>
+</body>
+</html>
