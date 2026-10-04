@@ -47,6 +47,7 @@ function render() {
       22: '22-the-card-scanner.html',
       23: '23-green-light-red-light.html',
       24: '24-the-access-system.html',
+      25: '25-the-rfid-door-lock.html',
     };
     if (lessonPages[lesson.week]) {
       const link = node.querySelector('.open-lesson');

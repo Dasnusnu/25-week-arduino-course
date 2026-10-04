@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Week 25 — The RFID Door Lock</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../lesson.css">
+</head>
+<body>
+  <header>
+    <p class="eyebrow">WEEK 25 · A BENCH-TOP POINTER, NOT A SECURITY DEVICE</p>
+    <h1>The RFID Door Lock</h1>
+    <p>Finish the curriculum with a harmless lab demonstrator: a practice tag makes a screen and a paper pointer say “tag seen.”</p>
+    <p><a class="back" href="../">← All lessons</a></p>
+  </header>
+  <main class="lesson-page">
+    <section class="lesson-summary" aria-labelledby="goal-heading">
+      <div><h2 id="goal-heading">Your goal</h2><p>Combine the retained MIT project’s RC522, LCD, and small-servo connections in a bench/lab demonstrator. A user-owned practice tag makes a 16×2 LCD say “Tag seen” and moves an unloaded paper pointer to a “TAG SEEN” mark, then back to “WAITING.” The tag is only noticed: the sketch makes no identity, permission, or security decision.</p></div>
+      <aside><strong>Time:</strong> 60–75 min<br><strong>Difficulty:</strong> three modules<br><strong>Output:</strong> a non-security status pointer and message</aside>
+    </section>
+
+    <section aria-labelledby="parts-heading">
+      <h2 id="parts-heading">Gather the parts</h2>
+      <ul class="parts"><li>Uno-compatible board and USB cable</li><li>RC522 / MFRC522 RFID reader breakout with antenna board</li><li>I2C LCD1602 module with a four-pin I2C backpack</li><li>One small, matching standard-position hobby servo and a lightweight paper pointer</li><li>One RFID card or key fob that you own or are explicitly authorized to use in a lab</li><li>Breadboard and fourteen male-to-male jumper wires</li></ul>
+      <p><strong>Safety and permission boundary:</strong> unplug USB before moving wires. Power the RC522 from <strong>3.3 V only</strong>, never 5 V. The source connections use 5 V for the LCD and the one small matching servo. Keep the servo horn clear of fingers, hair, sleeves, and objects; attach only a light paper pointer, do not force or block it, and stop/unplug if any part is hot, damaged, smells unusual, or makes the board reset. Scan only user-owned or lab RFID tags with clear permission. <strong>Do not use this lesson to secure people or property, operate a real door, gate, latch, relay, or mechanism, or make an access decision.</strong></p>
+    </section>
+
+    <section class="steps" aria-labelledby="steps-heading">
+      <h2 id="steps-heading">Build it, one check at a time</h2>
+      <article class="step"><h3>Step 1 — Change the source project’s purpose</h3><p>The retained MIT source shows an RC522 reader, an I2C LCD, and a servo on an Uno. It also contains a stored UID comparison and real-door language. We will use only its published wiring and harmless scan flow. Do not copy its comparison, permission text, or door behavior. Make a tiny desk sign with two marks: <strong>WAITING</strong> and <strong>TAG SEEN</strong>. Fit a light paper pointer to the small unloaded servo horn; it points at a sign, not a lock.</p><figure><img src="../assets/lesson-22/lesson-22-mit-rfid-wiring-table.png" alt="Unchanged public GitHub capture of the MIT RFID-Based Smart Door Lock System repository page, identifying its project context and MIT license."><figcaption>Reference image: an <strong>unchanged</strong> capture of the public <em>RFID-Based Smart Door Lock System</em> repository by mithra1x. Its README provides the RC522, LCD, and small-servo/Uno tables used below. The project is under the <a href="https://github.com/mithra1x/RFID-based-Smart-Door-Lock-System/blob/main/LICENSE">MIT License</a>; attribution and the actual public pages are linked in <a href="#source-heading">Reference pages</a>. This lesson does not reuse its credential comparison or real-door purpose.</figcaption></figure><label><input type="checkbox" data-step="1"> USB is unplugged; my servo has only a light paper pointer and no real-world mechanism is connected.</label></article>
+
+      <article class="step"><h3>Step 2 — Wire the RC522 reader</h3><p>With USB still unplugged, read each printed breakout label and match the retained source’s RC522 table. On many RC522 boards, <strong>SDA</strong> means the SPI select pin here, not the Uno’s I²C SDA pin. Leave IRQ unconnected.</p><ul><li><strong>RC522 3.3V → Arduino 3.3V</strong></li><li><strong>RC522 GND → Arduino GND</strong></li><li><strong>RC522 SDA (SS) → Arduino D10</strong></li><li><strong>RC522 SCK → Arduino D13</strong></li><li><strong>RC522 MOSI → Arduino D11</strong></li><li><strong>RC522 MISO → Arduino D12</strong></li><li><strong>RC522 RST → Arduino D9</strong></li></ul><p>These SPI pins are for an Uno-compatible board. If yours is different, stop and check its own documentation before applying power.</p><label><input type="checkbox" data-step="2"> I traced every reader wire, including 3.3 V rather than 5 V, and left IRQ unconnected.</label></article>
+
+      <article class="step"><h3>Step 3 — Add the display and paper-pointer servo</h3><p>The retained source’s LCD table uses a four-pin I2C backpack:</p><ul><li><strong>LCD VCC → Arduino 5V</strong></li><li><strong>LCD GND → Arduino GND</strong></li><li><strong>LCD SDA → Arduino A4 (SDA)</strong></li><li><strong>LCD SCL → Arduino A5 (SCL)</strong></li></ul><p>Then connect the source’s matching small-servo table: <strong>Arduino D3 → servo signal</strong>, <strong>servo VCC → Arduino 5V</strong>, and <strong>servo GND → Arduino GND</strong>. Check your servo’s own labels and documentation: wire colours and plug order vary. The LCD’s SDA/A4 and the reader’s SDA/SS/D10 are different interfaces. This is a one-small-servo desk demonstration only; do not add a load, more servos, or another power setup from this lesson.</p><label><input type="checkbox" data-step="3"> I checked the LCD and servo labels, matched all seven connections, and left the pointer’s path clear.</label></article>
+
+      <article class="step"><h3>Step 4 — Upload a notice-and-pointer sketch</h3><p>In Arduino IDE, install <strong>MFRC522</strong> by GithubCommunity and the <strong>LiquidCrystal_I2C</strong> library supplied for your LCD/kit. The source uses `MFRC522(10, 9)`, LCD `0x27` at 16×2, and servo pin 3. This original teaching sketch keeps those validated connections, but does not print, store, compare, or act on a UID. It moves only the paper pointer after any permitted practice tag is noticed.</p><pre><code>#include &lt;SPI.h&gt;
+#include &lt;MFRC522.h&gt;
+#include &lt;Wire.h&gt;
+#include &lt;LiquidCrystal_I2C.h&gt;
+#include &lt;Servo.h&gt;
+
+const byte ssPin = 10;
+const byte resetPin = 9;
+const byte servoPin = 3;
+const byte waitingAngle = 20;
+const byte tagSeenAngle = 100;
+
+MFRC522 rfid(ssPin, resetPin);
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+Servo pointerServo;
+
+void showWaiting() {
+  pointerServo.write(waitingAngle);
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Show practice tag");
+  lcd.setCursor(0, 1);
+  lcd.print("Bench demo only");
+}
+
+void setup() {
+  Serial.begin(9600);
+  SPI.begin();
+  rfid.PCD_Init();
+  lcd.init();
+  lcd.backlight();
+  pointerServo.attach(servoPin);
+  showWaiting();
+}
+
+void loop() {
+  if (!rfid.PICC_IsNewCardPresent()) return;
+  if (!rfid.PICC_ReadCardSerial()) return;
+
+  pointerServo.write(tagSeenAngle);
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Tag seen");
+  lcd.setCursor(0, 1);
+  lcd.print("Bench demo only");
+  Serial.println(F("Practice tag noticed."));
+  delay(1500);
+  rfid.PICC_HaltA();
+  showWaiting();
+}</code></pre><p>The Servo library controls a low-voltage paper pointer only. The sketch has no allow list, stored UID, matching loop, card-memory command, UID display, permission wording, relay pin, or real-world hardware command.</p><label><input type="checkbox" data-step="4"> I installed the two libraries, selected my board and port, and checked that the pointer can move freely before uploading.</label></article>
+
+      <article class="step"><h3>Step 5 — Observe, then reset safely</h3><p>Reconnect USB. The pointer should aim at WAITING and the LCD should show its waiting message. Hold your own/lab tag flat near the reader: the pointer should briefly point at TAG SEEN while the LCD says <strong>Tag seen</strong>, then return to WAITING. If anything strains, chatters, becomes hot, or resets the board, unplug USB before checking the unloaded pointer and wiring. If the LCD backlight is on but letters are missing, unplug USB before gently adjusting its contrast screw or consulting its documentation. Do not rename these messages as a person, approval, denial, entry result, or security result.</p><label><input type="checkbox" data-step="5"> I observed the harmless status display, or safely inspected my unplugged wiring and code against the references.</label></article>
+    </section>
+
+    <section class="challenge" aria-labelledby="challenge-heading"><h2 id="challenge-heading">Tiny challenge</h2><p>Replace the paper sign’s two labels with “READY” and “NOTICED,” then change the LCD’s second line to another 16-character-or-fewer lab reminder. Explain why a physical pointer can show an observation without being a security device.</p></section>
+    <section class="lesson-complete" aria-live="polite"><h2>Progress</h2><p id="progress-text">0 of 5 checks complete.</p><progress id="progress" value="0" max="5">0%</progress><button id="reset-progress" type="button">Reset this lesson’s checks</button></section>
+    <section class="sources" aria-labelledby="source-heading"><h2 id="source-heading">Reference pages</h2><ul><li><a href="https://github.com/mithra1x/RFID-based-Smart-Door-Lock-System">RFID-Based Smart Door Lock System — public README: exact RC522/Uno, LCD/Uno, and small-servo/Uno tables, project context, and MIT license</a></li><li><a href="https://github.com/mithra1x/RFID-based-Smart-Door-Lock-System/blob/main/main.cpp">RFID-Based Smart Door Lock System main.cpp — `SPI.begin()`, `PCD_Init()`, LCD `0x27` 16×2 setup, pin 3 servo attachment, scan flow, and halt call; its UID comparison, permission text, timing, and real-door behavior are deliberately excluded</a></li><li><a href="https://github.com/mithra1x/RFID-based-Smart-Door-Lock-System/blob/main/LICENSE">RFID-Based Smart Door Lock System MIT License — reuse terms for the attributed reference capture and source-derived technical details</a></li><li><a href="https://github.com/miguelbalboa/rfid">MFRC522 Arduino library — SPI-based MFRC522 reader workflow, limitations, and Unlicense terms</a></li><li><a href="https://github.com/miguelbalboa/rfid/blob/master/examples/DumpInfo/DumpInfo.ino">MFRC522 DumpInfo example — documented new-card/read-serial and `PICC_HaltA()` flow</a></li><li><a href="https://docs.arduino.cc/libraries/servo/">Arduino Servo library documentation — servo types, three-wire circuit, and power guidance</a></li><li><a href="https://docs.arduino.cc/learn/communication/wire/">Arduino documentation — Wire/I²C overview for the LCD interface</a></li></ul><p>The reference image is unchanged and visibly attributed to mithra1x’s MIT-licensed repository. The learner-facing instructions and notice-and-pointer teaching sketch are original. No physical hardware was tested for this lesson.</p></section>
+  </main>
+  <script src="../lesson.js"></script>
+</body>
+</html>
