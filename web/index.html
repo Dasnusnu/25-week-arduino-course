@@ -11,6 +11,11 @@
     <p class="eyebrow">LOCAL CURRICULUM WORKBENCH</p>
     <h1>25-Week Arduino Guide</h1>
     <p>Lesson inventory and build status. Content remains intentionally original; upstream material is referenced, not displayed here.</p>
+    <section class="curriculum-progress" aria-labelledby="curriculum-progress-heading">
+      <h2 id="curriculum-progress-heading">Your curriculum progress</h2>
+      <p id="curriculum-progress-text" aria-live="polite">0 of 25 lessons complete · 0 of 125 build checks complete.</p>
+      <progress id="curriculum-progress" value="0" max="25" aria-label="0 of 25 lessons complete">0 of 25</progress>
+    </section>
   </header>
   <main>
     <section class="controls" aria-label="Lesson filters">
@@ -25,6 +30,8 @@
       <div class="lesson-head"><span class="week"></span><span class="status"></span></div>
       <h2></h2><p class="summary"></p>
       <p class="concepts"></p><p class="coverage"></p>
+      <p class="lesson-progress-text" aria-live="polite"></p>
+      <progress class="lesson-progress" value="0" max="5" aria-label="0 of 5 build checks complete">0 of 5</progress>
       <a class="open-lesson" hidden>Open lesson →</a>
     </article>
   </template>
