@@ -1,4 +1,4 @@
-const state = { lessons: [], term: '', onlyCovered: false };
+const state = { lessons: [], term: '' };
 const grid = document.querySelector('#lessons');
 const count = document.querySelector('#count');
 const template = document.querySelector('#lesson-template');
@@ -46,7 +46,7 @@ function render() {
   const term = state.term.toLowerCase().trim();
   const visible = state.lessons.filter((lesson) => {
     const haystack = [lesson.title, lesson.summary, ...lesson.concepts, lesson.source].join(' ').toLowerCase();
-    return (!term || haystack.includes(term)) && (!state.onlyCovered || lesson.covered);
+    return !term || haystack.includes(term);
   });
   grid.replaceChildren();
   count.textContent = `${visible.length} of ${state.lessons.length} lessons`;
@@ -59,7 +59,7 @@ function render() {
     const filename = lessonPages[lesson.week];
     const complete = checkedSteps(filename);
     node.querySelector('.week').textContent = `W${String(lesson.week).padStart(2, '0')}`;
-    node.querySelector('.status').textContent = lesson.covered ? 'source pack present' : 'source gap';
+
     node.querySelector('h2').textContent = lesson.title;
     node.querySelector('.summary').textContent = lesson.summary;
     node.querySelector('.concepts').textContent = `Skills: ${lesson.concepts.join(' · ')}`;
@@ -78,7 +78,7 @@ function render() {
 }
 
 document.querySelector('#search').addEventListener('input', (event) => { state.term = event.target.value; render(); });
-document.querySelector('#covered').addEventListener('change', (event) => { state.onlyCovered = event.target.checked; render(); });
+
 window.addEventListener('storage', (event) => {
   if (event.key?.startsWith('25week-guide:') && event.key.endsWith(':checks')) render();
 });

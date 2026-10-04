@@ -45,6 +45,14 @@ class CurriculumProgressContractTest(unittest.TestCase):
         self.assertIn('.lesson-progress', css)
         self.assertIn('.lesson--complete', css)
 
+    def test_dashboard_does_not_expose_internal_source_pack_status(self):
+        page = (WEB / "index.html").read_text(encoding="utf-8")
+        script = (WEB / "app.js").read_text(encoding="utf-8")
+        self.assertNotIn('id="covered"', page)
+        self.assertNotIn('class="status"', page)
+        self.assertNotIn('source pack present', script)
+        self.assertNotIn('source gap', script)
+
 
 if __name__ == "__main__":
     unittest.main()

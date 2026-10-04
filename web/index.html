@@ -20,14 +20,13 @@
   <main>
     <section class="controls" aria-label="Lesson filters">
       <label>Find a lesson <input id="search" type="search" placeholder="e.g. RFID, display, sensor"></label>
-      <label><input id="covered" type="checkbox"> Show source-covered lessons only</label>
       <span id="count" aria-live="polite"></span>
     </section>
     <section id="lessons" class="lesson-grid" aria-label="Lessons"></section>
   </main>
   <template id="lesson-template">
     <article class="lesson">
-      <div class="lesson-head"><span class="week"></span><span class="status"></span></div>
+      <div class="lesson-head"><span class="week"></span></div>
       <h2></h2><p class="summary"></p>
       <p class="concepts"></p><p class="coverage"></p>
       <p class="lesson-progress-text" aria-live="polite"></p>
