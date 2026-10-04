@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Week 21 — The Remote-Controlled Lamp</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../lesson.css">
+</head>
+<body>
+  <header>
+    <p class="eyebrow">WEEK 21 · MAKE A SMALL LIGHT LISTEN</p>
+    <h1>The Remote-Controlled Lamp</h1>
+    <p>Use a remote button you measured last week to switch a low-voltage LED “lamp” on and off.</p>
+    <p><a class="back" href="../">← All lessons</a></p>
+  </header>
+  <main class="lesson-page">
+    <section class="lesson-summary" aria-labelledby="goal-heading">
+      <div><h2 id="goal-heading">Your goal</h2><p>Keep the Project 21.1 IR receiver on D12, add the Project 21.2 LED output on D5, then give two buttons from <em>your</em> remote an on/off job.</p></div>
+      <aside><strong>Time:</strong> 35–50 min<br><strong>Difficulty:</strong> careful labels + code values<br><strong>Keep it safe:</strong> this is an LED model, not a household lamp.</aside>
+    </section>
+
+    <section aria-labelledby="parts-heading">
+      <h2 id="parts-heading">Gather the parts</h2>
+      <ul class="parts"><li>Uno-compatible board and USB cable</li><li>Breadboard</li><li>Infrared remote and its correctly identified battery</li><li>Three-pin IR receiver with documented <strong>DATA</strong>, <strong>GND</strong>, and <strong>VCC</strong> labels</li><li>One LED</li><li>One 220 Ω resistor and one 10 kΩ resistor</li><li>Seven male-to-male jumper wires</li></ul>
+      <p><strong>Safety boundary:</strong> unplug USB before moving wires. This is only a low-voltage LED demonstration. <strong>Never connect this circuit, an Arduino pin, a breadboard, a relay, or this lesson’s LED to AC mains, a wall outlet, or a household lamp.</strong> A real lamp needs suitably rated enclosed equipment and a qualified adult/professional installation; it is outside this lesson. Do not infer the pin order of a bare three-pin receiver, and do not use a different LED color or a component that gets hot without checking its documentation. Keep remote coin cells away from children and pets; do not short, heat, crush, disassemble, or recharge them. Stop if anything is damaged, hot, or smells unusual.</p>
+    </section>
+
+    <section class="steps" aria-labelledby="steps-heading">
+      <h2 id="steps-heading">Build it, one check at a time</h2>
+      <article class="step"><h3>Step 1 — See the two jobs</h3><p>Your remote sends a coded infrared message. The receiver reports it on D12. The Arduino decides whether that message means “on” or “off,” then uses PWM-capable D5 to set the LED’s brightness. The source calls the LED a desk-lamp simulation; here it remains a small, low-voltage LED model.</p><figure><img src="../assets/lesson-21/lesson-21-freenove-remote-led-circuit.png" alt="Freenove Project 21.2 circuit page showing an IR receiver on Arduino pin 12 with a 10 kilohm pull-up, an LED from pin 5 through a 220 ohm resistor to ground, and a separate buzzer transistor circuit on pin 13."><figcaption>Reference image: Freenove Ultimate Starter Kit, Tutorial.pdf, Chapter 21, Project 21.2 circuit page (printed page 192; PDF page 196), an <strong>unchanged</strong> non-generated rasterization. Copyright Freenove; used under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC BY-NC-SA 3.0</a>. This lesson uses the shown IR receiver and LED portions only; it does <strong>not</strong> build the separate buzzer/transistor portion. The public tutorial, source license, and other references are linked in <a href="#source-heading">Reference pages</a>.</figcaption></figure><label><input type="checkbox" data-step="1"> USB is unplugged, and I know this LED model must never be wired to AC mains or a real lamp.</label></article>
+
+      <article class="step"><h3>Step 2 — Keep the receiver circuit from Week 20</h3><p>Use your receiver’s own labels and the exact Freenove Project 21.1/21.2 circuit—not the position of legs in a photograph. With USB still unplugged, trace these four connections:</p><ul><li><strong>Arduino 5 V → IR receiver VCC</strong></li><li><strong>Arduino GND → IR receiver GND</strong></li><li><strong>Arduino D12 → IR receiver DATA</strong></li><li><strong>10 kΩ pull-up resistor → between IR receiver DATA and Arduino 5 V</strong></li></ul><p>The 10 kΩ resistor joins the DATA point to 5 V; it is not in series with the receiver power wire. If your documented breakout has a different supply voltage, wiring, or built-in pull-up, stop and use its own documentation instead of guessing.</p><label><input type="checkbox" data-step="2"> I traced the labeled VCC, GND, and DATA-to-D12 paths plus the 10 kΩ DATA-to-5 V pull-up.</label></article>
+
+      <article class="step"><h3>Step 3 — Add only the LED “lamp” branch</h3><p>Use the LED branch in the Project 21.2 diagram. The LED has a direction: its anode is the positive side, and its cathode is the negative side. On many loose LEDs the longer lead is the anode and the flat edge marks the cathode, but verify your exact part before power is connected. Make these connections:</p><ul><li><strong>Arduino D5 → LED anode</strong></li><li><strong>LED cathode → 220 Ω resistor → Arduino GND</strong></li></ul><p>The 220 Ω resistor limits LED current and may be on either side of the LED electrically; this page follows the source drawing with it between cathode and ground. Do not omit it. D5 is a PWM output on an Uno-compatible board, so <code>analogWrite()</code> can choose brightness from 0 (off) to 255 (full duty cycle). The source diagram also shows a buzzer, NPN transistor, 1 kΩ resistor, and D13; leave that separate branch out for this focused LED lesson.</p><label><input type="checkbox" data-step="3"> My LED is directional, has its 220 Ω current-limiting resistor, and is only connected as the D5 low-voltage branch.</label></article>
+
+      <article class="step"><h3>Step 4 — Choose values you actually observed</h3><p>Open your Week 20 Serial Monitor notes. Press your chosen “on” and “off” buttons briefly and record the <strong>command</strong> values printed by the current IRremote sketch. Do not copy Freenove’s historical raw values (<code>0xFF6897</code>, <code>0xFF30CF</code>, and so on): remote models, protocols, and library APIs can differ. In the sketch below, replace the two placeholder values with the command values from <em>your</em> remote, then change <code>commandsAreConfigured</code> from <code>false</code> to <code>true</code>. Leaving it false keeps the LED off, which is a useful safety check while you are still reading values.</p><label><input type="checkbox" data-step="4"> I recorded two command values from my own remote and will not assume another remote’s codes match.</label></article>
+
+      <article class="step"><h3>Step 5 — Upload the guarded LED controller</h3><p>In Arduino IDE, install current <strong>IRremote</strong> by Armin Joachimsmeyer, reconnect USB, select your board and port, and upload. Open Serial Monitor at <strong>9600 baud</strong>. This original teaching sketch uses the maintained <code>IRremote.hpp</code> interface, the source’s D12 receiver and D5 LED assignments, and a repeat-frame check. It saves the command and repeat flag before <code>IrReceiver.resume()</code> so the receiver can immediately listen again.</p><pre><code>#include &lt;IRremote.hpp&gt;
+
+const byte receivePin = 12;
+const byte lampPin = 5;
+const bool commandsAreConfigured = false; // Change to true after replacing both placeholders.
+const uint16_t lampOnCommand = 0x0000;    // Replace with your observed command.
+const uint16_t lampOffCommand = 0x0000;   // Replace with your observed command.
+
+void setLamp(byte brightness) {
+  analogWrite(lampPin, brightness);
+}
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(lampPin, OUTPUT);
+  setLamp(0);
+  IrReceiver.begin(receivePin, ENABLE_LED_FEEDBACK);
+  Serial.println(F("Remote LED controller ready"));
+}
+
+void loop() {
+  if (IrReceiver.decode()) {
+    uint16_t command = IrReceiver.decodedIRData.command;
+    bool isRepeat = IrReceiver.decodedIRData.flags &amp; IRDATA_FLAGS_IS_REPEAT;
+    IrReceiver.resume();
+
+    if (!commandsAreConfigured) {
+      Serial.println(F("Add your two observed commands, then set commandsAreConfigured true."));
+      setLamp(0);
+      return;
+    }
+    if (isRepeat) return;
+
+    if (command == lampOnCommand) {
+      analogWrite(lampPin, 255);
+      Serial.println(F("LED lamp on"));
+    } else if (command == lampOffCommand) {
+      analogWrite(lampPin, 0);
+      Serial.println(F("LED lamp off"));
+    }
+  }
+}</code></pre><p><strong>Test slowly:</strong> tap your on button once and look for “LED lamp on”; tap off once and look for “LED lamp off.” A held button can generate repeat data, and this sketch ignores it. If the LED never lights, unplug USB before checking LED direction, the 220 Ω resistor, D5, common ground, receiver labels, D12, and the two values you wrote. Never replace the LED branch with a mains-powered device.</p><label><input type="checkbox" data-step="5"> I tested short taps with my own values, or safely compared the unplugged circuit and sketch with the references.</label></article>
+    </section>
+
+    <section class="challenge" aria-labelledby="challenge-heading"><h2 id="challenge-heading">Tiny challenge</h2><p>After the on/off version works, choose a third command you measured. Add one more <code>else if</code> that calls <code>setLamp(63)</code> for a gentler glow. Explain why you should test it with the same low-voltage LED—not a real lamp or appliance.</p></section>
+    <section class="lesson-complete" aria-live="polite"><h2>Progress</h2><p id="progress-text">0 of 5 checks complete.</p><progress id="progress" value="0" max="5">0%</progress><button id="reset-progress" type="button">Reset this lesson’s checks</button></section>
+    <section class="sources" aria-labelledby="source-heading"><h2 id="source-heading">Reference pages</h2><ul><li><a href="https://docs.freenove.com/projects/fnk0017/en/latest/fnk0017/codes/tutorial/21_Infrared_Remote.html">Freenove Chapter 21 — Infrared Remote, Project 21.1/21.2: receiver D12 circuit, 10 kΩ pull-up, LED D5/220 Ω branch, historical control sketch, and desk-lamp simulation context</a></li><li><a href="https://github.com/Freenove/Freenove_Ultimate_Starter_Kit/blob/master/readme.md">Freenove Ultimate Starter Kit source and CC BY-NC-SA 3.0 reuse declaration</a></li><li><a href="https://github.com/Arduino-IRremote/Arduino-IRremote">Arduino-IRremote — current receiver API, decoded command/flags, repeat-frame behavior, and MIT license</a></li><li><a href="https://github.com/Arduino-IRremote/Arduino-IRremote/blob/master/examples/SimpleReceiver/SimpleReceiver.ino">Arduino-IRremote SimpleReceiver example — current <code>IRremote.hpp</code>, begin/decode/result/resume flow, command field, and repeat flag</a></li><li><a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC BY-NC-SA 3.0 license — attribution, noncommercial, and ShareAlike terms for the unchanged Freenove image</a></li></ul><p>The unchanged reference image is from Freenove and used under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC BY-NC-SA 3.0</a>. The learner-facing instructions and clearly named teaching sketch are original. No physical hardware was tested for this lesson.</p></section>
+  </main>
+  <script src="../lesson.js"></script>
+</body>
+</html>
