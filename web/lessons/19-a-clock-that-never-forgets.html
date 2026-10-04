@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Week 19 — A Clock That Never Forgets</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../lesson.css">
+</head>
+<body>
+  <header>
+    <p class="eyebrow">WEEK 19 · KEEP TIME WHILE THE BOARD RESTS</p>
+    <h1>A Clock That Never Forgets</h1>
+    <p>Use a DS1302 real-time-clock module to store a date and time, then show it in the Serial Monitor.</p>
+    <p><a class="back" href="../">← All lessons</a></p>
+  </header>
+  <main class="lesson-page">
+    <section class="lesson-summary" aria-labelledby="goal-heading">
+      <div><h2 id="goal-heading">Your goal</h2><p>Connect a labeled DS1302 RTC module to an Uno-compatible board, set its calendar once, and read the saved date and time through the Serial Monitor.</p></div>
+      <aside><strong>Time:</strong> 35–50 min<br><strong>Difficulty:</strong> careful labels<br><strong>Keep it safe:</strong> do not guess battery type or pin order.</aside>
+    </section>
+
+    <section aria-labelledby="parts-heading">
+      <h2 id="parts-heading">Gather the parts</h2>
+      <ul class="parts"><li>Uno-compatible board and USB cable</li><li>Breadboard</li><li>DS1302 RTC <strong>module</strong> with its pins clearly labeled</li><li>5 male-to-male jumper wires</li><li>The exact backup battery specified for that module, only if its maker says it is required</li></ul>
+      <p><strong>Safety boundary:</strong> unplug USB before changing wires. This lesson is for a labeled, low-voltage DS1302 breakout—never connect a bare DS1302 chip using this page as a substitute for its crystal, power, and backup circuit. Coin cells can be swallowed and can cause severe injury; keep them away from children and pets. Do not short, crush, heat, disassemble, recharge, or replace a battery unless the module maker identifies the exact compatible type and procedure. The sketch does <strong>not</strong> enable the DS1302 trickle charger: never charge a battery merely because it fits the holder. Stop if anything becomes hot, smells unusual, or looks damaged.</p>
+    </section>
+
+    <section class="steps" aria-labelledby="steps-heading">
+      <h2 id="steps-heading">Build it, one check at a time</h2>
+      <article class="step"><h3>Step 1 — Meet the timekeeper</h3><p>The DS1302 is a real-time clock/calendar chip. It counts seconds, minutes, hours, day, date, month, and year; a backup supply can keep that information when the Arduino’s USB power is absent. It talks over three signal wires: <strong>CE</strong> chooses the chip, <strong>I/O</strong> carries data both ways, and <strong>SCLK</strong> provides the timing. This is a three-wire serial interface, but it is <strong>not compatible with SPI</strong>.</p><figure><img src="../assets/lesson-19/lesson-19-erriez-ds1302-module.png" alt="Photo of a green DS1302 real-time-clock module with a coin-cell holder, DS1302 integrated circuit, crystal, and five-pin header."><figcaption>Reference image: ErriezDS1302, <code>extras/DS1302.png</code>, an <strong>unchanged</strong> non-generated module photo from the retained source pack. Copyright Erriez; used under the <a href="https://github.com/Erriez/ErriezDS1302/blob/master/LICENSE">MIT License</a>. It shows a module style, not a wiring map; use the labels printed on your own module. The public project and license are linked in <a href="#source-heading">Reference pages</a>.</figcaption></figure><label><input type="checkbox" data-step="1"> USB is unplugged, my module says DS1302, and I can read its VCC, GND, CLK/SCLK, DAT/I/O, and RST/CE labels.</label></article>
+
+      <article class="step"><h3>Step 2 — Wire the five labeled connections</h3><p>Follow the labels on your module, not the order of pins in a photo. For the Uno-compatible AVR mapping used by the retained Erriez example, make these five connections:</p><ul><li><strong>Arduino 5V → DS1302 VCC</strong></li><li><strong>Arduino GND → DS1302 GND</strong></li><li><strong>Arduino D2 → DS1302 CLK</strong> (sometimes printed SCLK)</li><li><strong>Arduino D3 → DS1302 DAT</strong> (sometimes printed I/O)</li><li><strong>Arduino D4 → DS1302 RST/CE</strong> (CE was called RST in older datasheet revisions)</li></ul><p>Do not substitute VCC1/VCC2 bare-chip pin names for breakout labels. A module’s battery holder and onboard circuit vary, so a board with missing or different labels is a reason to stop and find its own documentation.</p><label><input type="checkbox" data-step="2"> I traced all five labeled paths, including a common ground, while USB is unplugged.</label></article>
+
+      <article class="step"><h3>Step 3 — Add the library</h3><p>In the Arduino IDE, install the <strong>Erriez DS1302 RTC</strong> library from its documented project source, then restart the IDE if it asks. This lesson uses its AVR pin choices D2, D3, and D4. The library creates one RTC object from those three pins and reports a failure instead of pretending a missing clock is working.</p><p><strong>Reality check:</strong> a DS1302 is useful for learning how a backup clock works, but it is not a precision time source. The retained library warns it can drift by more than one minute each day and recommends a DS3231 for new, high-precision designs. Do not use this lesson for alarms, medication, safety timing, or anything that needs exact time.</p><label><input type="checkbox" data-step="3"> I installed the Erriez DS1302 RTC library and understand that DS1302 time can drift.</label></article>
+
+      <article class="step"><h3>Step 4 — Set the clock only when you mean to</h3><p>The first upload needs to write a known date and time. In the sketch below, edit the seven values in <code>rtc.setDateTime(...)</code> to the current local date and time, then keep <code>setClockNow</code> as <code>true</code> for one upload. The function uses hour, minute, second, day of month, month, year, then weekday where <code>0</code> is Sunday and <code>6</code> is Saturday. After you see the clock running, change <code>setClockNow</code> to <code>false</code> and upload again. Otherwise every reset will write your old setup time over the saved clock.</p><label><input type="checkbox" data-step="4"> I know the first upload sets the time and the second upload stops overwriting it.</label></article>
+
+      <article class="step"><h3>Step 5 — Upload, watch, then leave the time alone</h3><p>Reconnect USB, select the board and port, upload, then open Serial Monitor at <strong>115200 baud</strong>. You should see a new time line roughly once each second. If you see “RTC not found,” unplug USB before checking the five labels and their wires. If you see “RTC clock stopped,” set the time again only after checking the module’s documented battery arrangement. This original learner sketch follows the retained source’s pins, object construction, <code>setDateTime()</code>, <code>getDateTime()</code>, and one-second update, with a deliberate one-time-setting switch.</p><pre><code>#include &lt;Wire.h&gt;
+#include &lt;ErriezDS1302.h&gt;
+
+#define DS1302_CLK_PIN 2
+#define DS1302_IO_PIN 3
+#define DS1302_CE_PIN 4
+
+ErriezDS1302 rtc(DS1302_CLK_PIN, DS1302_IO_PIN, DS1302_CE_PIN);
+const bool setClockNow = true; // Change to false after one successful set.
+
+void setup() {
+  Serial.begin(115200);
+  Wire.begin();
+  Wire.setClock(100000);
+
+  while (!rtc.begin()) {
+    Serial.println(F("RTC not found"));
+    delay(3000);
+  }
+
+  if (setClockNow) {
+    // Replace these example values with the current local time before one upload.
+    if (!rtc.setDateTime(12, 34, 56, 31, 12, 2020, 0)) {
+      Serial.println(F("Set date/time failed"));
+    }
+  }
+}
+
+void loop() {
+  uint8_t hour, minute, second, day, month, weekday;
+  uint16_t year;
+
+  if (!rtc.getDateTime(&hour, &minute, &second, &day, &month, &year, &weekday)) {
+    Serial.println(F("Read date/time failed"));
+    delay(1000);
+    return;
+  }
+
+  Serial.print(year); Serial.print('-');
+  Serial.print(month); Serial.print('-');
+  Serial.print(day); Serial.print(' ');
+  Serial.print(hour); Serial.print(':');
+  if (minute &lt; 10) Serial.print('0');
+  Serial.print(minute); Serial.print(':');
+  if (second &lt; 10) Serial.print('0');
+  Serial.println(second);
+  delay(1000);
+}</code></pre><p><strong>What you should see:</strong> the seconds change each line. After the one-time set, set <code>setClockNow</code> to <code>false</code>, upload, and do not repeatedly reset the stored time. A backup battery can preserve time only when it is the exact battery and setup specified for your module; it does not fix drift or wiring mistakes.</p><label><input type="checkbox" data-step="5"> I saw a changing time line, or safely compared my unplugged wiring and sketch with the reference.</label></article>
+    </section>
+
+    <section class="challenge" aria-labelledby="challenge-heading"><h2 id="challenge-heading">Tiny challenge</h2><p>Before editing code, predict what happens if you print <code>weekday</code> next to the date. Make a small seven-item weekday-name list in your own words, use the documented 0–6 range, and test it only after <code>setClockNow</code> is <code>false</code>. Does the displayed weekday match the value you deliberately set?</p></section>
+    <section class="lesson-complete" aria-live="polite"><h2>Progress</h2><p id="progress-text">0 of 5 checks complete.</p><progress id="progress" value="0" max="5">0%</progress><button id="reset-progress" type="button">Reset this lesson’s checks</button></section>
+    <section class="sources" aria-labelledby="source-heading"><h2 id="source-heading">Reference pages</h2><ul><li><a href="https://github.com/Erriez/ErriezDS1302">ErriezDS1302 project — MIT license, three-wire interface warning, AVR D2/D3/D4 pin mapping, API, accuracy warning, and examples</a></li><li><a href="https://github.com/Erriez/ErriezDS1302/blob/master/examples/ErriezDS1302SetGetDateTime/ErriezDS1302SetGetDateTime.ino">ErriezDS1302 Set/Get DateTime example — AVR pins, RTC initialization, set/read calls, valid date ranges, and one-second loop</a></li><li><a href="https://github.com/Erriez/ErriezDS1302/blob/master/LICENSE">ErriezDS1302 MIT License — attribution and reuse terms for the unchanged module photo</a></li><li><a href="https://www.analog.com/media/en/technical-documentation/data-sheets/DS1302.pdf">Analog Devices DS1302 datasheet — clock/calendar operation, CE/I/O/SCLK roles, dual power pins, and backup/trickle-charge constraints</a></li></ul><p>The unchanged reference image is from ErriezDS1302 and used under its <a href="https://github.com/Erriez/ErriezDS1302/blob/master/LICENSE">MIT License</a>. The learner-facing instructions and the clearly named teaching sketch are original. No physical hardware was tested for this lesson.</p></section>
+  </main>
+  <script src="../lesson.js"></script>
+</body>
+</html>
