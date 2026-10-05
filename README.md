@@ -4,7 +4,7 @@ A complete set of interactive Arduino lessons for a guided beginner. The guide o
 
 ## The easiest way to use the guide
 
-Download the offline ZIP from the latest Forgejo release, then:
+Download the offline ZIP from the [latest GitHub release](https://github.com/Dasnusnu/25-week-arduino-course/releases/latest), then:
 
 1. Extract the ZIP somewhere easy to find, such as Downloads or the Desktop.
 2. Open the extracted folder.
